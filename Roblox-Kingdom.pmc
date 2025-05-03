@@ -1,0 +1,209 @@
+[PMC Globals]|None||
+[PMC Code v5.4.1]|||0|Window,2,Fast,0,1,Input,-1,-1,1|1|CrateFast
+Context=None|
+Groups=Start:1
+1|WinActivate||1|333|WinActivate||Roblox||||
+2|[Pause]||1|300|Sleep||||||
+3|[Gosub]|CrateCornerF|1|0|Gosub||||||
+4|[Pause]||1|300|Sleep||||||
+5|[Gosub]|CrateBase|1|0|Gosub||||||
+6|[Pause]||1|300|Sleep||||||
+7|[Gosub]|PressE|1|0|Gosub||||||
+8|[Pause]||1|300|Sleep||||||
+9|[LoopStart]|LoopStart|12|0|Loop||||||
+10|[Gosub]|PressS|1|0|Gosub||||||
+11|[LoopEnd]|LoopEnd|1|0|Loop||||||
+12|[Gosub]|PressW|1|0|Gosub||||||
+13|[Pause]||1|50|Sleep||||||
+14|[Gosub]|PressE|1|0|Gosub||||||
+15|[Pause]||1|50|Sleep||||||
+16|[LoopStart]|LoopStart|7|0|Loop||||||
+17|[Gosub]|PressA|1|0|Gosub||||||
+18|[LoopEnd]|LoopEnd|1|0|Loop||||||
+19|[LoopStart]|LoopStart|7|0|Loop||||||
+20|[Gosub]|PressW|1|0|Gosub||||||
+21|[LoopEnd]|LoopEnd|1|0|Loop||||||
+22|[LoopStart]|LoopStart|17|0|Loop||||||
+23|[Gosub]|PressD|1|0|Gosub||||||
+24|[LoopEnd]|LoopEnd|1|0|Loop||||||
+25|[Gosub]|PressW|1|0|Gosub||||||
+26|[Gosub]|PressW|1|0|Gosub||||||
+27|[Gosub]|PressW|1|0|Gosub||||||
+
+[PMC Code v5.4.1]|||0|Window,2,Fast,0,1,Input,-1,-1,1|1|CrateBigC
+Context=None|
+Groups=Start:1
+1|[Pause]||1|1000|Sleep||||||
+2|[LoopStart]|LoopStart|0|0|Loop||||||
+3|Move|Rel 50, 0, 0|1|10|Click||||||
+4|[LoopStart]|LoopStart|60|0|Loop||||||
+5|[Pause]||1|1000|Sleep||||||
+6|Left Click|Left, 1, |1|10|Click||||||
+07|Space|{Space}|1|0|Send||||||
+8|Space|{Space Down}|1|0|Send||||||
+9|[Pause]||1|150|Sleep||||||
+10|Space|{Space Up}|1|0|Send||||||
+11|[Pause]||1|2000|Sleep||||||
+12|[LoopEnd]|LoopEnd|1|0|Loop||||||
+13|Move|Rel -50, 0, 0|1|10|Click||||||
+14|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Click
+Context=None|
+Groups=Start:1
+1|WinActivate||1|333|WinActivate||Roblox||||
+2|[Pause]||1|300|Sleep||||||
+3|[LoopStart]|LoopStart|0|0|Loop||||||
+4|Move|800, 590, 0|1|10|Click||||||
+5|Move|800, 590, 0|1|10|Click||||||
+6|Left Move & Click|800, 590 Left, 1|1|10|Click||||||
+7|[LoopStart]|LoopStart|30|0|Loop||||||
+8|[Gosub]|Wait1Sec|1|0|Gosub||||||
+9|[LoopEnd]|LoopEnd|1|0|Loop||||||
+10|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||0|Window,2,Fast,0,1,Input,-1,-1,1|1|BussyNew
+Context=None|
+Groups=Start:1
+1|WinActivate||1|333|WinActivate||Roblox ahk_exe RobloxPlayerBeta.exe||||
+2|[Pause]||1|300|Sleep||||||
+3|Move|695, 750, 0|1|10|Click||||||
+4|Space|{Space Down}|1|0|Send||||||
+5|[Pause]||1|100|Sleep||||||
+6|Space|{Space Up}|1|0|Send||||||
+7|[LoopStart]|LoopStart|60|0|Loop||||||
+8|[Gosub]|Wait1Sec|1|0|Gosub||||||
+9|[LoopEnd]|LoopEnd|1|0|Loop||||||
+10|Escape|{Escape Down}|1|0|Send||||||
+11|[Pause]||1|100|Sleep||||||
+12|Escape|{Escape Up}|1|0|Send||||||
+13|[Pause]||1|100|Sleep||||||
+14|Escape|{Escape Down}|1|0|Send||||||
+15|[Pause]||1|100|Sleep||||||
+16|Escape|{Escape Up}|1|0|Send||||||
+17|[LoopStart]|LoopStart|60|0|Loop||||||
+18|[Gosub]|Wait1Sec|1|0|Gosub||||||
+19|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|KeepBusy
+Context=None|
+Groups=Start:1
+1|[Pause]||1|1000|Sleep||||||
+2|[LoopStart]|LoopStart|0|0|Loop||||||
+3|Move|Rel 50, 0, 0|1|10|Click||||||
+4|[LoopStart]|LoopStart|60|0|Loop||||||
+5|[Pause]||1|1000|Sleep||||||
+6|Left Click|Left, 1, |1|10|Click||||||
+07|Space|{Space}|1|0|Send||||||
+8|Space|{Space Down}|1|0|Send||||||
+9|[Pause]||1|150|Sleep||||||
+10|Space|{Space Up}|1|0|Send||||||
+11|[Pause]||1|2000|Sleep||||||
+12|[LoopEnd]|LoopEnd|1|0|Loop||||||
+13|Move|Rel -50, 0, 0|1|10|Click||||||
+14|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|PressE
+Context=None|
+Groups=Start:1
+1|e|{e Down}|1|0|Send||||||
+2|e|{e Down}|1|0|Send||||||
+3|[Pause]||1|50|Sleep||||||
+4|e|{e Up}|1|0|Send||||||
+5|[Pause]||1|50|Sleep||||||
+6|e|{e Up}|1|0|Send||||||
+7|[Pause]||1|50|Sleep||||||
+8|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|PressW
+Context=None|
+Groups=Start:1
+1|w|{w Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|w|{w Up}|1|0|Send||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|PressD
+Context=None|
+Groups=Start:1
+1|d|{d Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|d|{d Up}|1|0|Send||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|PressS
+Context=None|
+Groups=Start:1
+1|s|{s Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|s|{s Up}|1|0|Send||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|PressA
+Context=None|
+Groups=Start:1
+1|a|{a Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|a|{a Up}|1|0|Send||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|CrateCornerF
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|4|0|Loop||||||
+2|[Gosub]|PressA|1|0|Gosub||||||
+3|[LoopEnd]|LoopEnd|1|0|Loop||||||
+4|[Gosub]|PressW|1|0|Gosub||||||
+5|[LoopStart]|LoopStart|4|0|Loop||||||
+6|[Gosub]|PressA|1|0|Gosub||||||
+7|[LoopEnd]|LoopEnd|1|0|Loop||||||
+8|[Pause]||1|50|Sleep||||||
+9|[LoopStart]|LoopStart|3|0|Loop||||||
+10|[Gosub]|PressS|1|0|Gosub||||||
+11|[LoopEnd]|LoopEnd|1|0|Loop||||||
+12|[Gosub]|PressA|1|0|Gosub||||||
+13|[Pause]||1|50|Sleep||||||
+14|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|CrateCorner
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|9|0|Loop||||||
+2|[Gosub]|PressA|1|0|Gosub||||||
+3|[LoopEnd]|LoopEnd|1|0|Loop||||||
+4|[Gosub]|PressW|1|0|Gosub||||||
+5|[LoopStart]|LoopStart|4|0|Loop||||||
+6|[Gosub]|PressA|1|0|Gosub||||||
+7|[LoopEnd]|LoopEnd|1|0|Loop||||||
+8|[Pause]||1|50|Sleep||||||
+9|[LoopStart]|LoopStart|8|0|Loop||||||
+10|[Gosub]|PressS|1|0|Gosub||||||
+11|[LoopEnd]|LoopEnd|1|0|Loop||||||
+12|[Gosub]|PressA|1|0|Gosub||||||
+13|[Pause]||1|50|Sleep||||||
+14|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|CrateBase
+Context=None|
+Groups=Start:1
+1|[Gosub]|PressD|1|0|Gosub||||||
+2|[Gosub]|PressD|1|0|Gosub||||||
+3|[LoopStart]|LoopStart|4|0|Loop||||||
+4|[Gosub]|PressW|1|0|Gosub||||||
+5|[LoopEnd]|LoopEnd|1|0|Loop||||||
+6|[Pause]||1|300|Sleep||||||
+7|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Wait1Sec
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|10|0|Loop||||||
+2|[Pause]||1|100|Sleep||||||
+3|[LoopEnd]|LoopEnd|1|0|Loop||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Finish
+Context=None|
+Groups=Start:1
+1|Return||1|0|Return||||||
+
