@@ -1,4 +1,4 @@
-# macros
+# MacrosDmW
 
 [![Hits](https://hits.sh/github.com/DeadManWalkingTO/macros.svg?style=plastic&label=HitCount)](../../)
 [![GitHub Release Date](https://img.shields.io/github/release-date-pre/DeadManWalkingTO/macros.svg)](../../releases/latest)
@@ -17,7 +17,7 @@
 [![GitHub license](https://img.shields.io/github/license/DeadManWalkingTO/macros.svg)](./LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](./README.md)
 
-> macros | Macros
+> MacrosDmW | Macros
 
 Usefull Macros.
 
