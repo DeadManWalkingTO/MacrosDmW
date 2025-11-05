@@ -1,0 +1,225 @@
+[PMC Globals]|None||
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Main
+Context=None|
+Groups=Start:1
+1|[Pause]||1|1000|Sleep||||||
+2|WinActivate||1|333|WinActivate||Roblox||||
+3|[Gosub]|MoveCenter|1|0|Gosub||||||
+4|Left Click|Left, 1, |1|10|Click||||||
+5|[Pause]||1|100|Sleep||||||
+6|[Gosub]|Initializing|1|0|Gosub||||||
+7|[LoopStart]|LoopStart|0|0|Loop||||||
+8|WinActivate||1|333|WinActivate||Roblox||||
+9|[Gosub]|BaseSkill|1|0|Gosub||||||
+10|[Gosub]|Attack|1|0|Gosub||||||
+11|[Gosub]|MoveCenter|1|0|Gosub||||||
+12|[Gosub]|Special1n|1|0|Gosub||||||
+13|[Gosub]|Attack|1|0|Gosub||||||
+14|[Gosub]|MoveCenter|1|0|Gosub||||||
+15|[Gosub]|Special2n|1|0|Gosub||||||
+16|[Gosub]|Attack|1|0|Gosub||||||
+17|[Gosub]|MoveCenter|1|0|Gosub||||||
+18|[Gosub]|Special3n|1|0|Gosub||||||
+19|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|FastAttack
+Context=None|
+Groups=Start:1
+1|[Pause]||1|1000|Sleep||||||
+2|WinActivate||1|333|WinActivate||Roblox||||
+3|[Gosub]|MoveCenter|1|0|Gosub||||||
+4|Left Click|Left, 1, |1|10|Click||||||
+5|[Pause]||1|100|Sleep||||||
+6|[LoopStart]|LoopStart|0|0|Loop||||||
+7|[Gosub]|MoveCenter|1|0|Gosub||||||
+8|[Gosub]|Attack|1|0|Gosub||||||
+09|z|{z}|1|100|Send||||||
+010|x|{x}|1|100|Send||||||
+011|c|{c}|1|100|Send||||||
+012|v|{v}|1|100|Send||||||
+013|f|{f}|1|100|Send||||||
+14|[LoopEnd]|LoopEnd|1|0|Loop||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Fwd
+Context=None|
+Groups=Start:1
+1|WinActivate||1|333|WinActivate||Roblox||||
+2|[Gosub]|MoveCenter|1|0|Gosub||||||
+3|Left Click|Left, 1, |1|10|Click||||||
+4|[Pause]||1|100|Sleep||||||
+5|w|{w Down}|1|50|Send||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Initializing
+Context=None|
+Groups=Start:1
+1|[Assign Variable]|ActiveSkill := 0|1|0|Variable||||||
+2|[Assign Variable]|Special1z := 0|1|0|Variable||||||
+3|[Assign Variable]|Special1x := 0|1|0|Variable||||||
+4|[Assign Variable]|Special1c := 0|1|0|Variable||||||
+5|[Assign Variable]|Special1v := 0|1|0|Variable||||||
+6|[Assign Variable]|Special2z := 0|1|0|Variable||||||
+7|[Assign Variable]|Special2x := 0|1|0|Variable||||||
+8|[Assign Variable]|Special2c := 0|1|0|Variable||||||
+9|[Assign Variable]|Special2v := 0|1|0|Variable||||||
+10|[Assign Variable]|Special3z := 0|1|0|Variable||||||
+11|[Assign Variable]|Special3x := 0|1|0|Variable||||||
+12|[Assign Variable]|Special3c := 0|1|0|Variable||||||
+13|[Assign Variable]|Special3v := 0|1|0|Variable||||||
+14|[Pause]||1|50|Sleep||||||
+15|[Assign Variable]|Special1x := 1|1|0|Variable||||||
+16|[Assign Variable]|Special1x := 1|1|0|Variable||||||
+17|[Assign Variable]|Special1c := 1|1|0|Variable||||||
+18|[Assign Variable]|Special2z := 1|1|0|Variable||||||
+19|[Assign Variable]|Special2x := 1|1|0|Variable||||||
+20|[Assign Variable]|Special3x := 1|1|0|Variable||||||
+21|[Assign Variable]|Special3z := 1|1|0|Variable||||||
+22|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|MoveCenter
+Context=None|
+Groups=Start:1
+01|Move|644, 492, 0|1|10|Click||||||
+2|Move|960, 440, 0|1|10|Click||||||
+3|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|BaseSkill
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill3|1|0|Gosub||||||
+2|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Attack
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|5|0|Loop||||||
+2|Left Click|Left, 1, |1|10|Click||||||
+3|[Pause]||1|100|Sleep||||||
+4|[LoopEnd]|LoopEnd|1|0|Loop||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Skill1
+Context=None|
+Groups=Start:1
+1|Compare Variables|ActiveSkill != 1|1|0|If_Statement||||||
+2|3|{3}|1|100|Send||||||
+3|1|{1}|1|100|Send||||||
+4|[Assign Variable]|ActiveSkill := 1|1|0|Variable||||||
+5|[End If]|EndIf|1|0|If_Statement||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Skill2
+Context=None|
+Groups=Start:1
+1|Compare Variables|ActiveSkill != 2|1|0|If_Statement||||||
+2|1|{1}|1|100|Send||||||
+3|2|{2}|1|100|Send||||||
+4|[Assign Variable]|ActiveSkill := 2|1|0|Variable||||||
+5|[End If]|EndIf|1|0|If_Statement||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Skill3
+Context=None|
+Groups=Start:1
+1|Compare Variables|ActiveSkill != 3|1|0|If_Statement||||||
+2|1|{1}|1|100|Send||||||
+3|3|{3}|1|100|Send||||||
+4|[Assign Variable]|ActiveSkill := 3|1|0|Variable||||||
+5|[End If]|EndIf|1|0|If_Statement||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special1n
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill1|1|0|Gosub||||||
+2|z|{z}|1|100|Send||||||
+3|x|{x}|1|100|Send||||||
+4|c|{c}|1|100|Send||||||
+05|v|{v}|1|100|Send||||||
+6|[Gosub]|BaseSkill|1|0|Gosub||||||
+7|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special2n
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill2|1|0|Gosub||||||
+2|z|{z}|1|100|Send||||||
+3|x|{x}|1|100|Send||||||
+04|c|{c}|1|100|Send||||||
+05|v|{v}|1|100|Send||||||
+6|[Gosub]|BaseSkill|1|0|Gosub||||||
+7|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special3n
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill3|1|0|Gosub||||||
+2|z|{z}|1|100|Send||||||
+3|x|{x}|1|100|Send||||||
+04|c|{c}|1|100|Send||||||
+05|v|{v}|1|100|Send||||||
+6|[Gosub]|BaseSkill|1|0|Gosub||||||
+7|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special1
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill1|1|0|Gosub||||||
+2|Compare Variables|Special1z == 1|1|0|If_Statement||||||
+3|z|{z}|1|100|Send||||||
+4|[End If]|EndIf|1|0|If_Statement||||||
+5|Compare Variables|Special1x == 1|1|0|If_Statement||||||
+6|x|{x}|1|100|Send||||||
+7|[End If]|EndIf|1|0|If_Statement||||||
+8|Compare Variables|Special1c == 1|1|0|If_Statement||||||
+9|c|{c}|1|100|Send||||||
+10|[End If]|EndIf|1|0|If_Statement||||||
+11|Compare Variables|Special1v == 1|1|0|If_Statement||||||
+12|v|{v}|1|100|Send||||||
+13|[End If]|EndIf|1|0|If_Statement||||||
+14|[Gosub]|BaseSkill|1|0|Gosub||||||
+15|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special2
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill2|1|0|Gosub||||||
+2|Compare Variables|Special2z == 1|1|0|If_Statement||||||
+3|z|{z}|1|100|Send||||||
+4|[End If]|EndIf|1|0|If_Statement||||||
+5|Compare Variables|Special2x == 1|1|0|If_Statement||||||
+6|x|{x}|1|100|Send||||||
+7|[End If]|EndIf|1|0|If_Statement||||||
+8|Compare Variables|Special2c == 1|1|0|If_Statement||||||
+9|c|{c}|1|100|Send||||||
+10|[End If]|EndIf|1|0|If_Statement||||||
+11|Compare Variables|Special2v == 1|1|0|If_Statement||||||
+12|v|{v}|1|100|Send||||||
+13|[End If]|EndIf|1|0|If_Statement||||||
+14|[Gosub]|BaseSkill|1|0|Gosub||||||
+15|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Special3
+Context=None|
+Groups=Start:1
+1|[Gosub]|Skill3|1|0|Gosub||||||
+2|Compare Variables|Special3z == 1|1|0|If_Statement||||||
+3|z|{z}|1|100|Send||||||
+4|[End If]|EndIf|1|0|If_Statement||||||
+5|Compare Variables|Special3x == 1|1|0|If_Statement||||||
+6|x|{x}|1|100|Send||||||
+7|[End If]|EndIf|1|0|If_Statement||||||
+8|Compare Variables|Special3c == 1|1|0|If_Statement||||||
+9|c|{c}|1|100|Send||||||
+10|[End If]|EndIf|1|0|If_Statement||||||
+11|Compare Variables|Special3v == 1|1|0|If_Statement||||||
+12|v|{v}|1|100|Send||||||
+13|[End If]|EndIf|1|0|If_Statement||||||
+14|[Gosub]|BaseSkill|1|0|Gosub||||||
+15|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|MacroEnd
+Context=None|
+Groups=Start:1
+1|Return||1|0|Return||||||
+
