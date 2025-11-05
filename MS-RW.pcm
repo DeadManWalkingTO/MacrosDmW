@@ -1,0 +1,355 @@
+[PMC Globals]|None||
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Main
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+3|[Pause]||1|300|Sleep||||||
+4|[Gosub]|MainBing|1|0|Gosub||||||
+5|[Gosub]|MainGoogle|1|0|Gosub||||||
+6|[Gosub]|MainYahoo|1|0|Gosub||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|MainBing
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+3|[Pause]||1|300|Sleep||||||
+4|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --profile-directory="Default"|1|0|Run||||||
+5|[Pause]||1|5000|Sleep||||||
+6|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+7|[Pause]||1|300|Sleep||||||
+8|WinMaximize||1|333|WinMaximize||Microsoft​ Edge||||
+9|[Pause]||1|7000|Sleep||||||
+10|[Gosub]|GoToFirstTab|1|0|Gosub||||||
+11|[Pause]||1|2000|Sleep||||||
+12|[Gosub]|GoToRewardsPage|1|0|Gosub||||||
+13|[Gosub]|SearchBing|1|0|Gosub||||||
+14|[Gosub]|GoToRewardsPage|1|0|Gosub||||||
+15|WinClose||1|333|WinClose||Microsoft​ Edge||||
+16|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|MainGoogle
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+3|[Pause]||1|300|Sleep||||||
+4|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --profile-directory="Chryseis"|1|0|Run||||||
+5|[Pause]||1|5000|Sleep||||||
+6|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+7|[Pause]||1|300|Sleep||||||
+8|WinMaximize||1|333|WinMaximize||Microsoft​ Edge||||
+9|[Pause]||1|7000|Sleep||||||
+10|[Gosub]|GoToFirstTab|1|0|Gosub||||||
+11|[Pause]||1|2000|Sleep||||||
+12|[Gosub]|SearchGoogle|1|0|Gosub||||||
+13|WinClose||1|333|WinClose||Microsoft​ Edge||||
+14|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|MainYahoo
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+3|[Pause]||1|300|Sleep||||||
+4|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --profile-directory="Zeus"|1|0|Run||||||
+5|[Pause]||1|5000|Sleep||||||
+6|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+7|[Pause]||1|300|Sleep||||||
+8|WinMaximize||1|333|WinMaximize||Microsoft​ Edge||||
+9|[Pause]||1|7000|Sleep||||||
+10|[Gosub]|GoToFirstTab|1|0|Gosub||||||
+11|[Pause]||1|2000|Sleep||||||
+12|[Gosub]|SearchGoogle|1|0|Gosub||||||
+13|WinClose||1|333|WinClose||Microsoft​ Edge||||
+14|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToFirstTab
+Context=None|
+Groups=Start:1
+1|LControl|{LControl Down}|1|0|Send||||||
+2|1|{1 Down}|1|0|Send||||||
+3|1|{1 Up}|1|0|Send||||||
+4|LControl|{LControl Up}|1|0|Send||||||
+5|[Pause]||1|1000|Sleep||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|SelectUrlBar
+Context=None|
+Groups=Start:1
+1|F4|{F4 Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|F4|{F4 Up}|1|0|Send||||||
+4|[Pause]||1|1000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToRewardsPage
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|[Gosub]|SelectUrlBar|1|0|Gosub||||||
+3|[Pause]||1|300|Sleep||||||
+4|[Text]| `n|1|0|SendRaw||||||
+5|[Text]|https://rewards.bing.com/`n|1|0|SendRaw||||||
+6|[Pause]||1|300|Sleep||||||
+7|Enter|{Enter}|1|0|Send||||||
+8|[Pause]||1|300|Sleep||||||
+9|Enter|{Enter}|1|0|Send||||||
+10|[Pause]||1|300|Sleep||||||
+11|[Pause]||1|300|Sleep||||||
+12|[Pause]||1|300|Sleep||||||
+13|Enter|{Enter}|1|0|Send||||||
+14|[MsgBox]|Finish Rewards Page|1|3|MsgBox|64|Finish||||
+15|[LoopStart]|LoopStart|10|0|Loop||||||
+16|[Gosub]|Wait1sec|1|0|Gosub||||||
+17|[LoopEnd]|LoopEnd|1|0|Loop||||||
+18|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|SearchBing
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start Searching|1|3|MsgBox|64|Start ||||
+2|[Gosub]|SelectUrlBar|1|0|Gosub||||||
+3|[Pause]||1|5000|Sleep||||||
+4|[Text]|myridakis uth|1|0|SendRaw||||||
+5|[Text]|{Delete} {Enter}|1|0|Send||||||
+6|[Pause]||1|3000|Sleep||||||
+7|[LoopStart]|LoopStart|40|0|Loop||||||
+8|[Pause]||1|300|Sleep||||||
+9|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+10|[Pause]||1|300|Sleep||||||
+11|/|{/}|1|0|Send||||||
+12|[Gosub]|SelectAll|1|0|Gosub||||||
+13|Backspace|{Backspace}|1|0|Send||||||
+14|[Pause]||1|2000|Sleep||||||
+15|[Text]|`n|1|0|SendRaw||||||
+16|If Loop Index|1|1|0|If_Statement||||||
+17|[Text]|myridakis|1|0|SendRaw||||||
+18|[ElseIf] If Loop Index|2|1|0|If_Statement||||||
+19|[Text]|myridakis ilias|1|0|SendRaw||||||
+20|[ElseIf] If Loop Index|3|1|0|If_Statement||||||
+21|[Text]|myridakis ilias facebook|1|0|SendRaw||||||
+22|[ElseIf] If Loop Index|4|1|0|If_Statement||||||
+23|[Text]|myridakis ilias youtube|1|0|SendRaw||||||
+24|[ElseIf] If Loop Index|5|1|0|If_Statement||||||
+25|[Text]|myridakis ilias youtube fosscom|1|0|SendRaw||||||
+26|[ElseIf] If Loop Index|6|1|0|If_Statement||||||
+27|[Text]|bluehackers|1|0|SendRaw||||||
+28|[ElseIf] If Loop Index|7|1|0|If_Statement||||||
+29|[Text]|bluehackers gr|1|0|SendRaw||||||
+30|[ElseIf] If Loop Index|8|1|0|If_Statement||||||
+31|[Text]|myridakis ilias μεταπτυχιακό|1|0|SendRaw||||||
+32|[ElseIf] If Loop Index|9|1|0|If_Statement||||||
+33|[Text]|myridakis ilias μεταπτυχιακό 2019|1|0|SendRaw||||||
+34|[ElseIf] If Loop Index|10|1|0|If_Statement||||||
+35|[Text]|myridakis ilias μεταπτυχιακό 2019 στρατός|1|0|SendRaw||||||
+36|[ElseIf] If Loop Index|11|1|0|If_Statement||||||
+37|[Text]|myridakis ilias tweet|1|0|SendRaw||||||
+38|[ElseIf] If Loop Index|12|1|0|If_Statement||||||
+39|[Text]|myridakis ilias linkedin|1|0|SendRaw||||||
+40|[ElseIf] If Loop Index|13|1|0|If_Statement||||||
+41|[Text]|myridakis ilias youtube fosscomm 2019|1|0|SendRaw||||||
+42|[ElseIf] If Loop Index|14|1|0|If_Statement||||||
+43|[Text]|myridakis ilias youtube fosscomm 2022|1|0|SendRaw||||||
+44|[ElseIf] If Loop Index|15|1|0|If_Statement||||||
+45|[Text]|myridakis ilias youtube fosscomm best part|1|0|SendRaw||||||
+46|[ElseIf] If Loop Index|16|1|0|If_Statement||||||
+47|[Text]|myridakis ilias youtube cluster|1|0|SendRaw||||||
+48|[ElseIf] If Loop Index|17|1|0|If_Statement||||||
+49|[Text]|myridakis ilias youtube cluster συνέδριο|1|0|SendRaw||||||
+50|[ElseIf] If Loop Index|18|1|0|If_Statement||||||
+51|[Text]|myridakis cluster|1|0|SendRaw||||||
+52|[ElseIf] If Loop Index|19|1|0|If_Statement||||||
+53|[Text]|myridakis ilias github|1|0|SendRaw||||||
+54|[ElseIf] If Loop Index|20|1|0|If_Statement||||||
+55|[Text]|myridakis ilias πανεπιστήμιο|1|0|SendRaw||||||
+56|[ElseIf] If Loop Index|21|1|0|If_Statement||||||
+57|[Text]|myridakis ilias πανεπιστήμιο θεσαλίας|1|0|SendRaw||||||
+58|[ElseIf] If Loop Index|22|1|0|If_Statement||||||
+59|[Text]|myridakis ilias 2019|1|0|SendRaw||||||
+60|[ElseIf] If Loop Index|23|1|0|If_Statement||||||
+61|[Text]|myridakis ilias 2022|1|0|SendRaw||||||
+62|[ElseIf] If Loop Index|24|1|0|If_Statement||||||
+63|[Text]|myridakis ilias low power|1|0|SendRaw||||||
+64|[ElseIf] If Loop Index|25|1|0|If_Statement||||||
+65|[Text]|myridakis ilias data center|1|0|SendRaw||||||
+66|[ElseIf] If Loop Index|26|1|0|If_Statement||||||
+67|[Text]|myridakis ilias greece|1|0|SendRaw||||||
+68|[ElseIf] If Loop Index|27|1|0|If_Statement||||||
+69|[Text]|bluehackersgr facebook|1|0|SendRaw||||||
+70|[ElseIf] If Loop Index|28|1|0|If_Statement||||||
+71|[Text]|bluehackersgr instagram|1|0|SendRaw||||||
+72|[ElseIf] If Loop Index|29|1|0|If_Statement||||||
+73|[Text]|myridakis ilias instagram|1|0|SendRaw||||||
+74|[ElseIf] If Loop Index|30|1|0|If_Statement||||||
+75|[Text]|myridakis ilias στρατός πανεπιστήμιο|1|0|SendRaw||||||
+76|[ElseIf] If Loop Index|31|1|0|If_Statement||||||
+77|[Text]|myridakis ilias bluehackersgr|1|0|SendRaw||||||
+78|[ElseIf] If Loop Index|32|1|0|If_Statement||||||
+79|[Text]|myridakis ilias συνέδριο|1|0|SendRaw||||||
+80|[ElseIf] If Loop Index|33|1|0|If_Statement||||||
+81|[Text]|myridakis ilias facebook instagram X|1|0|SendRaw||||||
+82|[ElseIf] If Loop Index|34|1|0|If_Statement||||||
+83|[Text]|myridakis ilias lamia low power|1|0|SendRaw||||||
+84|[ElseIf] If Loop Index|35|1|0|If_Statement||||||
+85|[Text]|myridakis ilias uth συνέδριο|1|0|SendRaw||||||
+86|[ElseIf] If Loop Index|36|1|0|If_Statement||||||
+87|[Text]|myridakis ilias power eveluation|1|0|SendRaw||||||
+88|[ElseIf] If Loop Index|37|1|0|If_Statement||||||
+89|[Text]|myridakis ilias πανεπιστήμιο|1|0|SendRaw||||||
+90|[ElseIf] If Loop Index|38|1|0|If_Statement||||||
+91|[Text]|myridakis ilias Λαμία|1|0|SendRaw||||||
+92|[ElseIf] If Loop Index|39|1|0|If_Statement||||||
+93|[Text]|myridakis ilias καθηγητής|1|0|SendRaw||||||
+94|[ElseIf] If Loop Index|40|1|0|If_Statement||||||
+95|[Text]|Μυριδάκης Ηλίας Ηλεκτρονικός Μηχανικός|1|0|SendRaw||||||
+96|[End If]|EndIf|1|0|If_Statement||||||
+97|[Pause]||1|300|Sleep||||||
+98|[Text]|{Delete} {Enter}|1|0|Send||||||
+099|Enter|{Enter}|1|0|Send||||||
+100|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+101|[LoopEnd]|LoopEnd|1|0|Loop||||||
+102|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|SearchGoogle
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start Searching|1|3|MsgBox|64|Start ||||
+2|[Gosub]|SelectUrlBar|1|0|Gosub||||||
+3|[Pause]||1|5000|Sleep||||||
+4|[Text]| `n|1|0|SendRaw||||||
+5|[Text]|myridakis uth|1|0|SendRaw||||||
+6|Space|{Space}|1|0|Send||||||
+7|Backspace|{Backspace}|1|0|Send||||||
+8|Enter|{Enter}|1|0|Send||||||
+9|[LoopStart]|LoopStart|40|0|Loop||||||
+10|[Pause]||1|300|Sleep||||||
+11|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+12|[Pause]||1|300|Sleep||||||
+013|[Control]|EditPaste, |1|0|Control|Chrome_RenderWidgetHost|Microsoft​ Edge||||
+14|/|{/}|1|0|Send||||||
+15|[Gosub]|SelectAll|1|0|Gosub||||||
+16|Backspace|{Backspace}|1|0|Send||||||
+17|[Pause]||1|2000|Sleep||||||
+18|[Text]|`n|1|0|SendRaw||||||
+19|If Loop Index|1|1|0|If_Statement||||||
+20|[Text]|myridakis`n|1|0|SendRaw||||||
+21|[Gosub]|Wait5sec|1|0|Gosub||||||
+22|[ElseIf] If Loop Index|2|1|0|If_Statement||||||
+23|[Text]|myridakis ilias`n|1|0|SendRaw||||||
+24|[Gosub]|Wait5sec|1|0|Gosub||||||
+25|[ElseIf] If Loop Index|3|1|0|If_Statement||||||
+26|[Text]|myridakis ilias facebook`n|1|0|SendRaw||||||
+27|[Gosub]|Wait5sec|1|0|Gosub||||||
+28|[ElseIf] If Loop Index|4|1|0|If_Statement||||||
+29|[Text]|myridakis ilias youtube`n|1|0|SendRaw||||||
+30|[Gosub]|Wait5sec|1|0|Gosub||||||
+31|[ElseIf] If Loop Index|5|1|0|If_Statement||||||
+32|[Text]|myridakis ilias youtube fosscom`n|1|0|SendRaw||||||
+33|[ElseIf] If Loop Index|6|1|0|If_Statement||||||
+34|[Text]|bluehackers`n|1|0|SendRaw||||||
+35|[ElseIf] If Loop Index|7|1|0|If_Statement||||||
+36|[Text]|bluehackers gr`n|1|0|SendRaw||||||
+37|[ElseIf] If Loop Index|8|1|0|If_Statement||||||
+38|[Text]|myridakis ilias μεταπτυχιακό`n|1|0|SendRaw||||||
+39|[ElseIf] If Loop Index|9|1|0|If_Statement||||||
+40|[Text]|myridakis ilias μεταπτυχιακό 2019`n|1|0|SendRaw||||||
+41|[ElseIf] If Loop Index|10|1|0|If_Statement||||||
+42|[Text]|myridakis ilias μεταπτυχιακό 2019 στρατός`n|1|0|SendRaw||||||
+43|[ElseIf] If Loop Index|11|1|0|If_Statement||||||
+44|[Text]|myridakis ilias tweet`n|1|0|SendRaw||||||
+45|[ElseIf] If Loop Index|12|1|0|If_Statement||||||
+46|[Text]|myridakis ilias linkedin`n|1|0|SendRaw||||||
+47|[ElseIf] If Loop Index|13|1|0|If_Statement||||||
+48|[Text]|myridakis ilias youtube fosscomm 2019`n|1|0|SendRaw||||||
+49|[ElseIf] If Loop Index|14|1|0|If_Statement||||||
+50|[Text]|myridakis ilias youtube fosscomm 2022`n|1|0|SendRaw||||||
+51|[ElseIf] If Loop Index|15|1|0|If_Statement||||||
+52|[Text]|myridakis ilias youtube fosscomm best part`n|1|0|SendRaw||||||
+53|[ElseIf] If Loop Index|16|1|0|If_Statement||||||
+54|[Text]|myridakis ilias youtube fosscomm best part`n|1|0|SendRaw||||||
+55|[ElseIf] If Loop Index|17|1|0|If_Statement||||||
+56|[Text]|myridakis ilias youtube cluster`n|1|0|SendRaw||||||
+57|[ElseIf] If Loop Index|18|1|0|If_Statement||||||
+58|[Text]|myridakis cluster`n|1|0|SendRaw||||||
+59|[ElseIf] If Loop Index|19|1|0|If_Statement||||||
+60|[Text]|myridakis ilias github`n|1|0|SendRaw||||||
+61|[ElseIf] If Loop Index|20|1|0|If_Statement||||||
+62|[Text]|myridakis ilias πανεπιστήμιο`n|1|0|SendRaw||||||
+63|[ElseIf] If Loop Index|21|1|0|If_Statement||||||
+64|[Text]|myridakis ilias πανεπιστήμιο θεσαλίας`n|1|0|SendRaw||||||
+65|[ElseIf] If Loop Index|22|1|0|If_Statement||||||
+66|[Text]|myridakis ilias 2019`n|1|0|SendRaw||||||
+67|[ElseIf] If Loop Index|23|1|0|If_Statement||||||
+68|[Text]|myridakis ilias 2022`n|1|0|SendRaw||||||
+69|[ElseIf] If Loop Index|24|1|0|If_Statement||||||
+70|[Text]|myridakis ilias low power`n|1|0|SendRaw||||||
+71|[ElseIf] If Loop Index|25|1|0|If_Statement||||||
+72|[Text]|myridakis ilias data center`n|1|0|SendRaw||||||
+73|[ElseIf] If Loop Index|26|1|0|If_Statement||||||
+74|[Text]|myridakis ilias greece`n|1|0|SendRaw||||||
+75|[ElseIf] If Loop Index|27|1|0|If_Statement||||||
+76|[Text]|bluehackersgr facebook`n|1|0|SendRaw||||||
+77|[ElseIf] If Loop Index|28|1|0|If_Statement||||||
+78|[Text]|bluehackersgr instagram`n|1|0|SendRaw||||||
+79|[ElseIf] If Loop Index|29|1|0|If_Statement||||||
+80|[Text]|myridakis ilias instagram`n|1|0|SendRaw||||||
+81|[ElseIf] If Loop Index|30|1|0|If_Statement||||||
+82|[Text]|myridakis ilias φιλαρμονική Λαμίας`n|1|0|SendRaw||||||
+83|[ElseIf] If Loop Index|31|1|0|If_Statement||||||
+84|[Text]|myridakis ilias bluehackersgr`n|1|0|SendRaw||||||
+85|[ElseIf] If Loop Index|32|1|0|If_Statement||||||
+86|[Text]|myridakis ilias συνέδριο`n|1|0|SendRaw||||||
+87|[ElseIf] If Loop Index|33|1|0|If_Statement||||||
+88|[Text]|myridakis ilias facebook instagram X`n|1|0|SendRaw||||||
+89|[ElseIf] If Loop Index|34|1|0|If_Statement||||||
+90|[Text]|myridakis ilias lamia philharmonic`n|1|0|SendRaw||||||
+91|[ElseIf] If Loop Index|35|1|0|If_Statement||||||
+92|[Text]|myridakis ilias magic brass`n|1|0|SendRaw||||||
+93|[ElseIf] If Loop Index|36|1|0|If_Statement||||||
+94|[Text]|myridakis ilias bass`n|1|0|SendRaw||||||
+95|[ElseIf] If Loop Index|37|1|0|If_Statement||||||
+96|[Text]|myridakis ilias πανεπιστήμιο`n|1|0|SendRaw||||||
+97|[ElseIf] If Loop Index|38|1|0|If_Statement||||||
+98|[Text]|myridakis ilias Λαμία`n|1|0|SendRaw||||||
+99|[ElseIf] If Loop Index|39|1|0|If_Statement||||||
+100|[Text]|myridakis ilias Κομποτάδες`n|1|0|SendRaw||||||
+101|[ElseIf] If Loop Index|40|1|0|If_Statement||||||
+102|[Text]|Μυριδάκης Ηλίας Δημοτική Φιλαρμονική Λαμίας`n|1|0|SendRaw||||||
+103|[End If]|EndIf|1|0|If_Statement||||||
+104|[Pause]||1|300|Sleep||||||
+105|Enter|{Enter}|1|0|Send||||||
+106|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+107|[LoopEnd]|LoopEnd|1|0|Loop||||||
+108|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Wait1sec
+Context=None|
+Groups=Start:1
+1|[Pause]||1|1000|Sleep||||||
+2|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Wait5sec
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|5|0|Loop||||||
+2|[Gosub]|Wait1sec|1|0|Gosub||||||
+3|[LoopEnd]|LoopEnd|1|0|Loop||||||
+4|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|SelectAll
+Context=None|
+Groups=Start:1
+1|LControl|{LControl Down}|1|0|Send||||||
+2|a|{a Down}|1|0|Send||||||
+3|a|{a Up}|1|0|Send||||||
+4|LControl|{LControl Up}|1|0|Send||||||
+5|[Pause]||1|1000|Sleep||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|End
+Context=None|
+Groups=Start:1
+1|Return||1|0|Return||||||
+
