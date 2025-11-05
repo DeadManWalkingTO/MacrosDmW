@@ -1,0 +1,209 @@
+[PMC Globals]|None||
+[PMC Code v5.4.1]|||0|Window,2,Fast,0,1,Input,-1,-1,1|1|Main
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start|1|3|MsgBox|64|Start ||||
+2|[Pause]||1|1000|Sleep||||||
+3|[Gosub]|Initializing|1|0|Gosub||||||
+4|[Gosub]|OpenEdge|1|0|Gosub||||||
+5|WinActivate||1|333|WinActivate||Microsoft​ Edge||||
+6|WinMaximize||1|333|WinMaximize||Microsoft​ Edge||||
+7|[Pause]||1|1000|Sleep||||||
+8|[Gosub]|GoToFirstTab|1|0|Gosub||||||
+9|[Pause]||1|1000|Sleep||||||
+10|[Gosub]|YTBHPLAll|1|0|Gosub||||||
+11|[Gosub]|YTBHFixed|1|0|Gosub||||||
+12|[Gosub]|YTBHPLShort|1|0|Gosub||||||
+13|[Gosub]|YTBHPLGames|1|0|Gosub||||||
+14|WinClose||1|333|WinClose||Microsoft​ Edge||||
+15|[MsgBox]|End|1|3|MsgBox|64|End||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Initializing
+Context=None|
+Groups=Start:1
+1|[Assign Variable]|URLtarget := F|1|0|Variable|Expression|||||
+02|[Assign Variable]|ListURLpath := https://www.youtube.com/watch?v=Dzc0zbFkUiA&list=PL1TQ_pTmsiAAz486-6cs7ds0EM5Ee8ssp&index=|1|0|Variable||||||
+03|[Assign Variable]|ListURLcounterMIN := 0|1|0|Variable||||||
+04|[Assign Variable]|ListURLcounterMAX := 21|1|0|Variable||||||
+05|[Assign Variable]|ListURLcounter := %ListURLcounterMIN%|1|0|Variable||||||
+06|[Assign Variable]|ListURLtarget := F|1|0|Variable|Expression|||||
+07|[Assign Variable]|ListURLtarget := %ListURLpath%%ListURLcounter%|1|0|Variable||||||
+8|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|YTBHPLAll
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start Youtube Playlist PalayAll|1|3|MsgBox|64|Start ||||
+2|[Gosub]|GoToYTPLALL|1|0|Gosub||||||
+3|[Pause]||1|5000|Sleep||||||
+04|k|{k}|1|0|Send||||||
+05|[Pause]||1|1000|Sleep||||||
+6|[LoopStart]|LoopStart|18|0|Loop||||||
+7|[Gosub]|Pause30sec|1|0|Gosub||||||
+8|[Gosub]|Pause30sec|1|0|Gosub||||||
+9|[Gosub]|Pause30sec|1|0|Gosub||||||
+10|[Gosub]|Pause30sec|1|0|Gosub||||||
+11|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+12|[Gosub]|NextVideo|1|0|Gosub||||||
+13|[LoopEnd]|LoopEnd|1|0|Loop||||||
+14|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|YTBHPLShort
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start Youtube Playlist Short|1|3|MsgBox|64|Start ||||
+2|[Gosub]|GoToYTShort|1|0|Gosub||||||
+3|[Pause]||1|5000|Sleep||||||
+04|k|{k}|1|0|Send||||||
+05|[Pause]||1|1000|Sleep||||||
+6|[LoopStart]|LoopStart|25|0|Loop||||||
+7|[Gosub]|Pause30sec|1|0|Gosub||||||
+8|[Gosub]|Pause30sec|1|0|Gosub||||||
+09|[Gosub]|Pause30sec|1|0|Gosub||||||
+10|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+011|Mouse Wheel Down|WheelDown, 1|1|10|Click||||||
+12|[LoopEnd]|LoopEnd|1|0|Loop||||||
+13|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|YTBHPLGames
+Context=None|
+Groups=Start:1
+1|[MsgBox]|Start Youtube Playlist Games|1|3|MsgBox|64|Start ||||
+2|[Gosub]|GoToYTPLGames|1|0|Gosub||||||
+3|[Pause]||1|5000|Sleep||||||
+04|k|{k}|1|0|Send||||||
+05|[Pause]||1|1000|Sleep||||||
+6|[LoopStart]|LoopStart|62|0|Loop||||||
+7|[Gosub]|Pause30sec|1|0|Gosub||||||
+8|[Gosub]|Pause30sec|1|0|Gosub||||||
+9|[Gosub]|Pause30sec|1|0|Gosub||||||
+10|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+11|[Gosub]|NextVideo|1|0|Gosub||||||
+12|[LoopEnd]|LoopEnd|1|0|Loop||||||
+13|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|YTBHFixed
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|5|0|Loop||||||
+2|Compare Variables|A_index == 1|1|0|If_Statement||||||
+3|[MsgBox]|Play Fosscomm 2019|1|3|MsgBox|64|Start ||||
+4|[Assign Variable]|URLtarget := https://youtu.be/SHcfDzCJFMQ|1|0|Variable||||||
+5|[ElseIf] Compare Variables|A_index == 2|1|0|If_Statement||||||
+6|[MsgBox]|Play MSc|1|3|MsgBox|64|Start ||||
+7|[Assign Variable]|URLtarget := https://youtu.be/V_1-7NvEQ8U|1|0|Variable||||||
+8|[ElseIf] Compare Variables|A_index == 3|1|0|If_Statement||||||
+9|[MsgBox]|Play Fosscomm 2022|1|3|MsgBox|64|Start ||||
+10|[Assign Variable]|URLtarget := https://youtu.be/hRSXQtHdTzk|1|0|Variable||||||
+11|[ElseIf] Compare Variables|A_index == 4|1|0|If_Statement||||||
+12|[MsgBox]|Play SOSbuttonGR|1|3|MsgBox|64|Start ||||
+13|[Assign Variable]|URLtarget := https://youtu.be/WVIlygtfWmk|1|0|Variable||||||
+14|[End If]|EndIf|1|0|If_Statement||||||
+15|[Gosub]|GotoURL|1|0|Gosub||||||
+16|[Pause]||1|3000|Sleep||||||
+17|k|{k}|1|0|Send||||||
+18|[Gosub]|Pause30sec|1|0|Gosub||||||
+19|[Gosub]|Pause30sec|1|0|Gosub||||||
+20|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+21|[LoopEnd]|LoopEnd|1|0|Loop||||||
+22|[Pause]||1|3000|Sleep||||||
+23|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|OpenEdge
+Context=None|
+Groups=Start:1
+1|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --profile-directory="Default"|1|0|Run||||||
+02|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"|1|0|Run||||||
+03|Run|"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --profile-directory="Profile 13"|1|0|Run||||||
+4|[Pause]||1|5000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToFirstTab
+Context=None|
+Groups=Start:1
+1|LControl|{LControl Down}|1|0|Send||||||
+2|1|{1 Down}|1|0|Send||||||
+3|1|{1 Up}|1|0|Send||||||
+4|LControl|{LControl Up}|1|0|Send||||||
+5|[Pause]||1|1000|Sleep||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|SelectURLbar
+Context=None|
+Groups=Start:1
+1|F4|{F4 Down}|1|0|Send||||||
+2|[Pause]||1|100|Sleep||||||
+3|F4|{F4 Up}|1|0|Send||||||
+4|[Pause]||1|1000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToURL
+Context=None|
+Groups=Start:1
+1|[Pause]||1|300|Sleep||||||
+2|[Gosub]|SelectURLbar|1|0|Gosub||||||
+3|[Pause]||1|300|Sleep||||||
+4|Backspace|{Backspace}|1|0|Send||||||
+5|[Pause]||1|300|Sleep||||||
+6|[Text]|%URLtarget%|1|0|Send||||||
+7|[Text]|{Delete}{Enter}|1|0|Send||||||
+8|[Pause]||1|300|Sleep||||||
+9|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|NextVideo
+Context=None|
+Groups=Start:1
+1|LShift|{LShift Down}|1|0|Send||||||
+2|N|{N Down}|1|0|Send||||||
+3|[Pause]||1|50|Sleep||||||
+4|N|{N Up}|1|0|Send||||||
+5|LShift|{LShift Up}|1|0|Send||||||
+6|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToYTPLALL
+Context=None|
+Groups=Start:1
+1|[Assign Variable]|URLtarget := https://www.youtube.com/playlist?list=PL1TQ_pTmsiADD0QnjnvlfoRV3kDUaFtXc|1|0|Variable||||||
+2|[Assign Variable]|URLtarget := %URLtarget%&playnext=1&autoplay=1|1|0|Variable||||||
+3|[Gosub]|GotoURL|1|0|Gosub||||||
+4|[Pause]||1|3000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToYTShort
+Context=None|
+Groups=Start:1
+1|[Assign Variable]|URLtarget := https://www.youtube.com/playlist?list=PL1TQ_pTmsiADjbuLSuERlL9-gcV3FGFN2|1|0|Variable||||||
+2|[Assign Variable]|URLtarget := %URLtarget%&playnext=1&autoplay=1|1|0|Variable||||||
+3|[Gosub]|GotoURL|1|0|Gosub||||||
+4|[Pause]||1|3000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|GoToYTPLGames
+Context=None|
+Groups=Start:1
+1|[Assign Variable]|URLtarget := https://www.youtube.com/playlist?list=PL1TQ_pTmsiAAz486-6cs7ds0EM5Ee8ssp|1|0|Variable||||||
+2|[Assign Variable]|URLtarget := %URLtarget%&playnext=1&autoplay=1|1|0|Variable||||||
+3|[Gosub]|GotoURL|1|0|Gosub||||||
+4|[Pause]||1|3000|Sleep||||||
+5|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|Pause30sec
+Context=None|
+Groups=Start:1
+1|[LoopStart]|LoopStart|30|0|Loop||||||
+2|[Pause]||1|1000|Sleep||||||
+3|[LoopEnd]|LoopEnd|1|0|Loop||||||
+4|Return||1|0|Return||||||
+5|[Pause]||1|3000|Sleep||||||
+6|[Assign Variable]|URLtarget := %URLtarget%&playnext=1&autoplay=1|1|0|Variable||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|NotInUse
+Context=None|
+Groups=Start:1
+1|Return||1|0|Return||||||
+
+[PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|End
+Context=None|
+Groups=Start:1
+1|Return||1|0|Return||||||
+
