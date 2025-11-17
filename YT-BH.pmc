@@ -13,7 +13,7 @@ Groups=Start:1
 9|[Pause]||1|1000|Sleep||||||
 10|[Gosub]|YTBHPLAll|1|0|Gosub||||||
 11|[Gosub]|YTBHFixed|1|0|Gosub||||||
-12|[Gosub]|YTBHPLShort|1|0|Gosub||||||
+012|[Gosub]|YTBHPLShort|1|0|Gosub||||||
 13|[Gosub]|YTBHPLGames|1|0|Gosub||||||
 14|WinClose||1|333|WinClose||Microsoft​ Edge||||
 15|[MsgBox]|End|1|3|MsgBox|64|End||||
@@ -89,25 +89,29 @@ Groups=Start:1
 2|Compare Variables|A_index == 1|1|0|If_Statement||||||
 3|[MsgBox]|Play Fosscomm 2019|1|3|MsgBox|64|Start ||||
 4|[Assign Variable]|URLtarget := https://youtu.be/SHcfDzCJFMQ|1|0|Variable||||||
-5|[ElseIf] Compare Variables|A_index == 2|1|0|If_Statement||||||
-6|[MsgBox]|Play MSc|1|3|MsgBox|64|Start ||||
-7|[Assign Variable]|URLtarget := https://youtu.be/V_1-7NvEQ8U|1|0|Variable||||||
-8|[ElseIf] Compare Variables|A_index == 3|1|0|If_Statement||||||
-9|[MsgBox]|Play Fosscomm 2022|1|3|MsgBox|64|Start ||||
-10|[Assign Variable]|URLtarget := https://youtu.be/hRSXQtHdTzk|1|0|Variable||||||
-11|[ElseIf] Compare Variables|A_index == 4|1|0|If_Statement||||||
-12|[MsgBox]|Play SOSbuttonGR|1|3|MsgBox|64|Start ||||
-13|[Assign Variable]|URLtarget := https://youtu.be/WVIlygtfWmk|1|0|Variable||||||
-14|[End If]|EndIf|1|0|If_Statement||||||
-15|[Gosub]|GotoURL|1|0|Gosub||||||
-16|[Pause]||1|3000|Sleep||||||
-17|k|{k}|1|0|Send||||||
-18|[Gosub]|Pause30sec|1|0|Gosub||||||
-19|[Gosub]|Pause30sec|1|0|Gosub||||||
-20|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
-21|[LoopEnd]|LoopEnd|1|0|Loop||||||
-22|[Pause]||1|3000|Sleep||||||
-23|Return||1|0|Return||||||
+5|[Assign Variable]|URLtarget := %URLtarget%&autoplay=1|1|0|Variable||||||
+6|[ElseIf] Compare Variables|A_index == 2|1|0|If_Statement||||||
+7|[MsgBox]|Play MSc|1|3|MsgBox|64|Start ||||
+8|[Assign Variable]|URLtarget := https://youtu.be/V_1-7NvEQ8U|1|0|Variable||||||
+9|[Assign Variable]|URLtarget := %URLtarget%&autoplay=1|1|0|Variable||||||
+10|[ElseIf] Compare Variables|A_index == 3|1|0|If_Statement||||||
+11|[MsgBox]|Play Fosscomm 2022|1|3|MsgBox|64|Start ||||
+12|[Assign Variable]|URLtarget := https://youtu.be/hRSXQtHdTzk|1|0|Variable||||||
+13|[Assign Variable]|URLtarget := %URLtarget%&autoplay=1|1|0|Variable||||||
+14|[ElseIf] Compare Variables|A_index == 4|1|0|If_Statement||||||
+15|[MsgBox]|Play SOSbuttonGR|1|3|MsgBox|64|Start ||||
+16|[Assign Variable]|URLtarget := https://youtu.be/WVIlygtfWmk|1|0|Variable||||||
+17|[Assign Variable]|URLtarget := %URLtarget%&autoplay=1|1|0|Variable||||||
+18|[End If]|EndIf|1|0|If_Statement||||||
+19|[Gosub]|GotoURL|1|0|Gosub||||||
+20|[Pause]||1|3000|Sleep||||||
+21|k|{k}|1|0|Send||||||
+22|[Gosub]|Pause30sec|1|0|Gosub||||||
+23|[Gosub]|Pause30sec|1|0|Gosub||||||
+24|[MsgBox]|Finish No %A_index%|1|3|MsgBox|64|Finish||||
+25|[LoopEnd]|LoopEnd|1|0|Loop||||||
+26|[Pause]||1|3000|Sleep||||||
+27|Return||1|0|Return||||||
 
 [PMC Code v5.4.1]|||1|Window,2,Fast,0,1,Input,-1,-1,1|1|OpenEdge
 Context=None|
