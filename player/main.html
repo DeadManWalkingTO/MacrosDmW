@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto YouTube Multi Viewer (8 Players Random Time)</title>
+  <title>Auto YouTube Multi Viewer (Random Start & Duration)</title>
   <style>
     .grid {
       display: grid;
@@ -56,14 +56,18 @@
 
     function onPlayerReady(event) {
       event.target.mute();
-      event.target.playVideo();
-      event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση
-      scheduleNext(event.target);
+      // Τυχαία καθυστέρηση εκκίνησης (0–60 δευτερόλεπτα)
+      let randomStartDelay = Math.floor(Math.random() * 60000);
+      setTimeout(() => {
+        event.target.playVideo();
+        event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση
+        scheduleNext(event.target);
+      }, randomStartDelay);
     }
 
     function scheduleNext(player) {
       // Τυχαίο διάστημα μεταξύ 10 και 15 λεπτών
-      let randomDelay = (10 + Math.random() * 5) * 60000; 
+      let randomDelay = (10 + Math.random() * 5) * 60000;
       setTimeout(() => {
         let newId = getRandomVideos(1)[0];
         player.loadVideoById(newId);
