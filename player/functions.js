@@ -1,9 +1,16 @@
+// --- Versions
+const JS_VERSION = "v1.3.2";
+const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
+
 // --- State
 let players = [];
 let videoList = [];
 let isMutedAll = true;
-let listSource = "Internal"; // default
+let listSource = "Internal"; // Local | Web | Internal
 const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
+
+// --- Log settings
+const MAX_LOGS = 50;
 
 // --- Internal list (final fallback)
 const internalList = [
@@ -31,6 +38,7 @@ function log(msg) {
     const div = document.createElement("div");
     div.textContent = msg;
     panel.appendChild(div);
+    while (panel.children.length > MAX_LOGS) panel.removeChild(panel.firstChild);
     panel.scrollTop = panel.scrollHeight;
   }
   updateStats();
@@ -43,7 +51,9 @@ function logPlayer(pIndex, msg, id=null) {
 function updateStats() {
   const el = document.getElementById("statsPanel");
   if (el) {
-    el.textContent = `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+    el.textContent =
+      `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | ` +
+      `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
   }
 }
 const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
@@ -67,22 +77,18 @@ function loadVideoList() {
           if (arr.length) { listSource = "Web"; return arr; }
           throw "empty";
         })
-        .catch(() => {
-          listSource = "Internal";
-          return internalList;
-        });
+        .catch(() => { listSource = "Internal"; return internalList; });
     });
 }
 
-// --- Kick off list loading
-loadVideoList().then(list => {
-  videoList = list;
-  if (typeof YT !== "undefined" && YT.Player) {
-    initPlayers(getRandomVideos(8));
-  }
-}).catch(err => {
-  log(`[${ts()}] ❌ List load error: ${err}`);
-});
+// --- Kick off
+loadVideoList()
+  .then(list => {
+    videoList = list;
+    log(`[${ts()}] 🚀 Project start — HTML ${HTML_VERSION} | JS ${JS_VERSION}`);
+    if (typeof YT !== "undefined" && YT.Player) initPlayers(getRandomVideos(8));
+  })
+  .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
 // --- YouTube API ready -> init players
 function onYouTubeIframeAPIReady() {
@@ -90,10 +96,7 @@ function onYouTubeIframeAPIReady() {
     initPlayers(getRandomVideos(8));
   } else {
     const check = setInterval(() => {
-      if (videoList.length) {
-        clearInterval(check);
-        initPlayers(getRandomVideos(8));
-      }
+      if (videoList.length) { clearInterval(check); initPlayers(getRandomVideos(8)); }
     }, 300);
   }
 }
@@ -166,19 +169,18 @@ function scheduleMidSeek(p, i) {
 
 // --- Controls
 function playAll() {
-  players.forEach((p, i) => p.playVideo());
+  players.forEach((p) => p.playVideo());
   log(`[${ts()}] ▶ Play All`);
 }
 function pauseAll() {
-  players.forEach((p, i) => p.pauseVideo());
+  players.forEach((p) => p.pauseVideo());
   stats.pauses++;
   log(`[${ts()}] ⏸ Pause All`);
 }
 function stopAll() {
-  players.forEach((p, i) => p.stopVideo());
+  players.forEach((p) => p.stopVideo());
   log(`[${ts()}] ⏹ Stop All`);
 }
-
 function nextAll() {
   players.forEach((p, i) => {
     const newId = getRandomVideos(1)[0];
@@ -189,7 +191,6 @@ function nextAll() {
   stats.manualNext++;
   log(`[${ts()}] ⏭ Next All`);
 }
-
 function shuffleAll() {
   const sh = getRandomVideos(players.length);
   players.forEach((p, i) => {
@@ -200,7 +201,6 @@ function shuffleAll() {
   stats.shuffle++;
   log(`[${ts()}] 🎲 Shuffle All`);
 }
-
 function restartAll() {
   const set = getRandomVideos(players.length);
   players.forEach((p, i) => {
@@ -212,7 +212,6 @@ function restartAll() {
   stats.restart++;
   log(`[${ts()}] 🔁 Restart All`);
 }
-
 function toggleMuteAll() {
   if (isMutedAll) {
     players.forEach((p, i) => {
@@ -229,7 +228,6 @@ function toggleMuteAll() {
   }
   isMutedAll = !isMutedAll;
 }
-
 function randomizeVolumeAll() {
   players.forEach((p, i) => {
     const v = rndInt(0, 100);
@@ -239,7 +237,6 @@ function randomizeVolumeAll() {
   stats.volumeChanges++;
   log(`[${ts()}] 🔊 Randomize Volume All`);
 }
-
 function normalizeVolumeAll() {
   players.forEach((p, i) => {
     p.setVolume(NORMALIZE_VOLUME_TARGET);
@@ -248,8 +245,12 @@ function normalizeVolumeAll() {
   stats.volumeChanges++;
   log(`[${ts()}] 🎚 Normalize Volume All`);
 }
-
 function toggleTheme() {
   document.body.classList.toggle("light");
   log(`[${ts()}] 🌓 Theme toggled`);
+}
+function clearLogs() {
+  const panel = document.getElementById("activityPanel");
+  if (panel) panel.innerHTML = "";
+  log(`[${ts()}] 🧹 Logs cleared`);
 }
