@@ -32,6 +32,12 @@
     let players = [];
     let videoList = [];
 
+    // --- Ρυθμίσεις ---
+    const MIN_START_DELAY = 0;      // σε δευτερόλεπτα
+    const MAX_START_DELAY = 120;    // σε δευτερόλεπτα
+    const MIN_PLAY_TIME = 5;        // σε λεπτά
+    const MAX_PLAY_TIME = 20;       // σε λεπτά
+
     // Φόρτωση λίστας από GitHub raw
     fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
       .then(response => response.text())
@@ -56,8 +62,8 @@
 
     function onPlayerReady(event) {
       event.target.mute();
-      // Τυχαία καθυστέρηση εκκίνησης (0–60 δευτερόλεπτα)
-      let randomStartDelay = Math.floor(Math.random() * 60000);
+      // Τυχαία καθυστέρηση εκκίνησης
+      let randomStartDelay = (MIN_START_DELAY + Math.random() * (MAX_START_DELAY - MIN_START_DELAY)) * 1000;
       setTimeout(() => {
         event.target.playVideo();
         event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση
@@ -66,8 +72,8 @@
     }
 
     function scheduleNext(player) {
-      // Τυχαίο διάστημα μεταξύ 10 και 15 λεπτών
-      let randomDelay = (10 + Math.random() * 5) * 60000;
+      // Τυχαία διάρκεια προβολής
+      let randomDelay = (MIN_PLAY_TIME + Math.random() * (MAX_PLAY_TIME - MIN_PLAY_TIME)) * 60000;
       setTimeout(() => {
         let newId = getRandomVideos(1)[0];
         player.loadVideoById(newId);
