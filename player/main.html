@@ -4,16 +4,32 @@
   <title>Main Active Desktop Page</title>
   <style>
     :root {
-      --gap-desktop: 10px;
-      --gap-mobile: 6px;
-      --iframe-mobile-height: 220px;
+      --bg: #111;
+      --fg: #eee;
+      --panel-bg: #1a1a1a;
+      --btn-bg: #222;
+      --btn-fg: #eee;
+      --btn-border: #444;
     }
-    body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
+    body.light {
+      --bg: #f9f9f9;
+      --fg: #222;
+      --panel-bg: #eaeaea;
+      --btn-bg: #fff;
+      --btn-fg: #222;
+      --btn-border: #ccc;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
     .controls {
       position: sticky;
       top: 0;
-      background: #1a1a1a;
-      border-bottom: 1px solid #333;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--btn-border);
       padding: 12px;
       z-index: 10;
       text-align: center;
@@ -21,37 +37,40 @@
     .controls h1 { margin: 0 0 8px; font-size: 20px; }
     .controls .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
     button {
-      border: 1px solid #444;
-      background: #222;
-      color: #eee;
+      border: 1px solid var(--btn-border);
+      background: var(--btn-bg);
+      color: var(--btn-fg);
       padding: 8px 14px;
       border-radius: 6px;
       cursor: pointer;
       transition: background .15s ease, border-color .15s ease;
     }
     button:hover { background: #2b2b2b; border-color: #666; }
+    body.light button:hover { background: #ddd; border-color: #999; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr); /* desktop: 4 columns */
-      gap: var(--gap-desktop);
-      padding: var(--gap-desktop);
-      height: 80vh;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 10px;
+      height: 70vh;
     }
     iframe { width: 100%; height: 100%; border: none; border-radius: 8px; background: #000; }
 
-    /* Mobile responsive */
     @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr); /* mobile: 2 columns */
-        gap: var(--gap-mobile);
-        height: auto;
-      }
-      iframe { height: var(--iframe-mobile-height); }
+      .grid { grid-template-columns: repeat(2, 1fr); height: auto; }
+      iframe { height: 220px; }
     }
 
-    /* Small hint footer */
-    .hint { text-align: center; font-size: 12px; color: #aaa; padding-bottom: 10px; }
+    .activity {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--btn-border);
+      padding: 10px;
+      font-size: 13px;
+      height: 20vh;
+      overflow-y: auto;
+    }
+    .log-entry { margin: 2px 0; }
   </style>
 </head>
 <body>
@@ -67,52 +86,38 @@
       <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
       <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
       <button onclick="normalizeVolumeAll()">🎚 Volume Normalize All</button>
+      <button onclick="toggleTheme()">🌓 Dark/Light Mode</button>
     </div>
-    <div class="hint">Auto‑next, mid‑seek, random pauses, periodic volume changes, and extended start delays are enabled.</div>
   </div>
 
   <div class="grid">
-    <div id="player1"></div>
-    <div id="player2"></div>
-    <div id="player3"></div>
-    <div id="player4"></div>
-    <div id="player5"></div>
-    <div id="player6"></div>
-    <div id="player7"></div>
-    <div id="player8"></div>
+    <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
+    <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
   </div>
+
+  <div class="activity" id="activityPanel"></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // --- State ---
     let players = [];
     let videoList = [];
     let isMutedAll = true;
 
-    // --- Settings (tuned for "natural" behavior) ---
-    const MIN_START_DELAY_S = 5;     // start delays: 5–180s, more asynchronous
-    const MAX_START_DELAY_S = 180;
-    const MIN_PLAY_MIN = 10;         // base play time window
-    const MAX_PLAY_MIN = 15;
-    const EXTRA_JITTER_S = [20, 60]; // extra jitter before next video
-    const INIT_SEEK_S_MAX = 75;      // initial seek window (0–75s)
-    const MID_SEEK_INTERVAL_MIN = [5, 9]; // every 5–9 minutes, mid‑video seek to simulate skipping
-    const MID_SEEK_WINDOW_S = [45, 180];  // seek window within the video
-    const PAUSE_SMALL_S = [2, 5];    // small micro‑pauses 2–5s
-    const PAUSE_LARGE_S = [18, 35];  // larger pauses 18–35s
-    const PAUSE_WITHIN_MIN = 6;      // schedule pauses within first N minutes of a session
-    const INIT_VOLUME_RANGE = [0, 20];     // start volume range to be autoplay‑friendly
-    const PERIODIC_VOL_INTERVAL_MIN = [3, 7]; // every 3–7 minutes tweak volume slightly
-    const PERIODIC_VOL_STEP = [-8, 12];   // small adjustments per step
-    const NORMALIZE_VOLUME_TARGET = 20;   // normalize to 20%
+    const NORMALIZE_VOLUME_TARGET = 20;
 
-    // --- Utils ---
+    // --- Logging helper ---
+    function log(msg) {
+      console.log(msg);
+      const panel = document.getElementById("activityPanel");
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.textContent = msg;
+      panel.appendChild(div);
+      panel.scrollTop = panel.scrollHeight;
+    }
     const ts = () => new Date().toLocaleTimeString();
-    const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
-    const rndFloatMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
-    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-    // --- Load remote list ---
+    // --- Load video list ---
     fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
       .then(r => r.text())
       .then(text => {
@@ -129,190 +134,55 @@
       videoIds.forEach((id, index) => {
         players[index] = new YT.Player(`player${index+1}`, {
           videoId: id,
-          events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange
-          }
+          events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
         });
       });
     }
 
-    // --- Player lifecycle ---
     function onPlayerReady(event) {
       const p = event.target;
       p.mute();
-
-      const startDelayMs = rndFloatMs(MIN_START_DELAY_S, MAX_START_DELAY_S);
-      setTimeout(() => {
-        const seek = rndInt(0, INIT_SEEK_S_MAX);
-        const initVol = rndInt(INIT_VOLUME_RANGE[0], INIT_VOLUME_RANGE[1]);
-
-        p.seekTo(seek, true);
-        p.setVolume(initVol);
-        p.playVideo();
-        p.setPlaybackQuality('small');
-
-        console.log(`[${ts()}] ▶ Start: id=${p.getVideoData().video_id}, seek=${seek}s, vol=${initVol}%`);
-        scheduleNext(p);
-        scheduleRandomPauses(p);
-        scheduleMidVideoSeek(p);
-        schedulePeriodicVolume(p);
-      }, startDelayMs);
-    }
-
-    function scheduleNext(player) {
-      const baseMs = (MIN_PLAY_MIN + Math.random() * (MAX_PLAY_MIN - MIN_PLAY_MIN)) * 60000;
-      const jitterMs = rndFloatMs(EXTRA_JITTER_S[0], EXTRA_JITTER_S[1]);
-
-      setTimeout(() => {
-        const newId = getRandomVideos(1)[0];
-        const seek = rndInt(0, INIT_SEEK_S_MAX);
-        const vol = rndInt(INIT_VOLUME_RANGE[0], INIT_VOLUME_RANGE[1]);
-
-        player.loadVideoById(newId);
-        player.seekTo(seek, true);
-        player.setVolume(vol);
-        player.mute(); // keep autoplay consistent
-        player.playVideo();
-        player.setPlaybackQuality('small');
-
-        console.log(`[${ts()}] 🔄 Next timed: id=${newId}, seek=${seek}s, vol=${vol}%, wait=${Math.round((baseMs+jitterMs)/1000)}s`);
-        // Re‑schedule behaviors for the new session
-        scheduleNext(player);
-        scheduleRandomPauses(player);
-        scheduleMidVideoSeek(player);
-        schedulePeriodicVolume(player);
-      }, baseMs + jitterMs);
+      p.playVideo();
+      log(`[${ts()}] ▶ Player ready: id=${p.getVideoData().video_id}`);
     }
 
     function onPlayerStateChange(event) {
-      const p = event.target;
       if (event.data === YT.PlayerState.ENDED) {
         const newId = getRandomVideos(1)[0];
-        const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
-        p.loadVideoById(newId);
-        p.seekTo(seek, true);
-        p.setPlaybackQuality('small');
-        console.log(`[${ts()}] ⏭ Auto‑next: id=${newId}, seek=${seek}s`);
-        // Re‑enable behaviors after auto‑next
-        scheduleNext(p);
-        scheduleRandomPauses(p);
-        scheduleMidVideoSeek(p);
-        schedulePeriodicVolume(p);
+        event.target.loadVideoById(newId);
+        log(`[${ts()}] ⏭ Auto‑next: id=${newId}`);
       }
-    }
-
-    // --- Natural behaviors ---
-    function scheduleRandomPauses(player) {
-      const withinMs = PAUSE_WITHIN_MIN * 60000;
-      // Decide whether to do small or large pause first
-      const doSmallFirst = Math.random() < 0.6;
-
-      const schedulePause = (rangeS, label) => {
-        const delayMs = Math.random() * withinMs; // when to pause
-        const pauseLenMs = rndFloatMs(rangeS[0], rangeS[1]);
-        setTimeout(() => {
-          player.pauseVideo();
-          console.log(`[${ts()}] ⏸ Pause (${label} ${Math.round(pauseLenMs/1000)}s): id=${player.getVideoData().video_id}`);
-          setTimeout(() => {
-            player.playVideo();
-            console.log(`[${ts()}] ▶ Resume: id=${player.getVideoData().video_id}`);
-          }, pauseLenMs);
-        }, delayMs);
-      };
-
-      if (doSmallFirst) {
-        schedulePause(PAUSE_SMALL_S, 'small');
-        schedulePause(PAUSE_LARGE_S, 'large');
-      } else {
-        schedulePause(PAUSE_LARGE_S, 'large');
-        schedulePause(PAUSE_SMALL_S, 'small');
-      }
-    }
-
-    function scheduleMidVideoSeek(player) {
-      const intervalMin = rndInt(MID_SEEK_INTERVAL_MIN[0], MID_SEEK_INTERVAL_MIN[1]);
-      const delayMs = intervalMin * 60000;
-      setTimeout(() => {
-        const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
-        player.seekTo(seek, true);
-        console.log(`[${ts()}] ⤴ Mid‑seek: id=${player.getVideoData().video_id}, to=${seek}s`);
-        // Chain another mid‑seek for continued natural behavior
-        scheduleMidVideoSeek(player);
-      }, delayMs);
-    }
-
-    function schedulePeriodicVolume(player) {
-      const intervalMin = rndInt(PERIODIC_VOL_INTERVAL_MIN[0], PERIODIC_VOL_INTERVAL_MIN[1]);
-      const delayMs = intervalMin * 60000;
-      setTimeout(() => {
-        const currentVol = player.getVolume?.() ?? NORMALIZE_VOLUME_TARGET;
-        const step = rndInt(PERIODIC_VOL_STEP[0], PERIODIC_VOL_STEP[1]);
-        const newVol = clamp(currentVol + step, 0, 100);
-        player.setVolume(newVol);
-        console.log(`[${ts()}] 🎚 Periodic volume: id=${player.getVideoData().video_id}, ${currentVol}% -> ${newVol}%`);
-        // Continue periodic adjustments
-        schedulePeriodicVolume(player);
-      }, delayMs);
     }
 
     // --- Controls ---
-    function playAll() { players.forEach(p => p.playVideo()); console.log(`[${ts()}] ▶ Play All`); }
-    function pauseAll() { players.forEach(p => p.pauseVideo()); console.log(`[${ts()}] ⏸ Pause All`); }
-    function stopAll() { players.forEach(p => p.stopVideo()); console.log(`[${ts()}] ⏹ Stop All`); }
-
+    function playAll() { players.forEach(p => p.playVideo()); log(`[${ts()}] ▶ Play All`); }
+    function pauseAll() { players.forEach(p => p.pauseVideo()); log(`[${ts()}] ⏸ Pause All`); }
+    function stopAll() { players.forEach(p => p.stopVideo()); log(`[${ts()}] ⏹ Stop All`); }
     function nextAll() {
-      players.forEach(p => {
-        const newId = getRandomVideos(1)[0];
-        p.loadVideoById(newId);
-        p.playVideo();
-        console.log(`[${ts()}] ⏭ Manual next: id=${newId}`);
-      });
+      players.forEach(p => { let newId = getRandomVideos(1)[0]; p.loadVideoById(newId); p.playVideo(); log(`[${ts()}] ⏭ Next: id=${newId}`); });
     }
-
     function shuffleAll() {
-      const shuffled = getRandomVideos(players.length);
-      players.forEach((p, i) => {
-        p.loadVideoById(shuffled[i]);
-        p.playVideo();
-        console.log(`[${ts()}] 🎲 Shuffle: p${i+1} -> ${shuffled[i]}`);
-      });
+      let shuffled = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.loadVideoById(shuffled[i]); p.playVideo(); log(`[${ts()}] 🎲 Shuffle: p${i+1} -> ${shuffled[i]}`); });
     }
-
     function restartAll() {
-      const newSet = getRandomVideos(players.length);
-      players.forEach((p, i) => {
-        p.stopVideo();
-        p.loadVideoById(newSet[i]);
-        p.playVideo();
-        console.log(`[${ts()}] 🔁 Restart: p${i+1} -> ${newSet[i]}`);
-      });
+      let newSet = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.stopVideo(); p.loadVideoById(newSet[i]); p.playVideo(); log(`[${ts()}] 🔁 Restart: p${i+1} -> ${newSet[i]}`); });
     }
-
     function toggleMuteAll() {
-      if (isMutedAll) {
-        players.forEach(p => p.unMute());
-        console.log(`[${ts()}] 🔊 Unmute All`);
-      } else {
-        players.forEach(p => p.mute());
-        console.log(`[${ts()}] 🔇 Mute All`);
-      }
+      if (isMutedAll) { players.forEach(p => p.unMute()); log(`[${ts()}] 🔊 Unmute All`); }
+      else { players.forEach(p => p.mute()); log(`[${ts()}] 🔇 Mute All`); }
       isMutedAll = !isMutedAll;
     }
-
     function randomizeVolumeAll() {
-      players.forEach((p, i) => {
-        const v = rndInt(0, 100);
-        p.setVolume(v);
-        console.log(`[${ts()}] 🔊 Random volume: p${i+1} -> ${v}%`);
-      });
+      players.forEach((p,i) => { let v = Math.floor(Math.random()*101); p.setVolume(v); log(`[${ts()}] 🔊 Random volume: p${i+1} -> ${v}%`); });
     }
-
     function normalizeVolumeAll() {
-      players.forEach((p, i) => {
-        p.setVolume(NORMALIZE_VOLUME_TARGET);
-        console.log(`[${ts()}] 🎚 Normalize volume: p${i+1} -> ${NORMALIZE_VOLUME_TARGET}%`);
-      });
+      players.forEach((p,i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); log(`[${ts()}] 🎚 Normalize volume: p${i+1} -> ${NORMALIZE_VOLUME_TARGET}%`); });
+    }
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      log(`[${ts()}] 🌓 Theme toggled: ${document.body.classList.contains("light") ? "Light" : "Dark"}`);
     }
   </script>
 </body>
