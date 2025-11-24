@@ -1,13 +1,14 @@
 // --- State
 let players = [];
+let videoList = [];
 let isMutedAll = true;
-const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
+const stats = { autoNext: 0, manualNext: 0, shuffle: 0, restart: 0, pauses: 0, volumeChanges: 0 };
 
-// --- Video IDs (σταθερή λίστα από εσένα)
-const videoList = [
-  "ibfVWogZZhU","mYn9JUxxi0M","sWCTs_rQNy8","JFweOaiCoj4","U6VWEuOFRLQ",
-  "ARn8J7N1hIQ","3nd2812IDA4","RFO0NWk-WPw","biwbtfnq9JI","3EXSD6DDCrU",
-  "WezZYKX7AAY","AhRR2nQ71Eg","xIQBnFvFTfg","ZWbRPcCbZA8","YsdWYiPlEsE"
+// --- Internal list (final fallback)
+const internalList = [
+  "ibfVWogZZhU", "mYn9JUxxi0M", "sWCTs_rQNy8", "JFweOaiCoj4", "U6VWEuOFRLQ",
+  "ARn8J7N1hIQ", "3nd2812IDA4", "RFO0NWk-WPw", "biwbtfnq9JI", "3EXSD6DDCrU",
+  "WezZYKX7AAY", "AhRR2nQ71Eg", "xIQBnFvFTfg", "ZWbRPcCbZA8", "YsdWYiPlEsE"
 ];
 
 // --- Config
@@ -25,28 +26,79 @@ const ts = () => new Date().toLocaleTimeString();
 function log(msg) {
   console.log(msg);
   const panel = document.getElementById("activityPanel");
-  const div = document.createElement("div");
-  div.textContent = msg;
-  panel.appendChild(div);
-  panel.scrollTop = panel.scrollHeight;
+  if (panel) {
+    const div = document.createElement("div");
+    div.textContent = msg;
+    panel.appendChild(div);
+    panel.scrollTop = panel.scrollHeight;
+  }
   updateStats();
 }
 function updateStats() {
-  document.getElementById("statsPanel").textContent =
-    `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+  const el = document.getElementById("statsPanel");
+  if (el) {
+    el.textContent = `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+  }
 }
 const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
 const rndDelayMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
 function getRandomVideos(n) { return [...videoList].sort(() => Math.random() - 0.5).slice(0, n); }
 
+// --- Load list with triple fallback: local -> remote -> internal
+function loadVideoList() {
+  // 1. Local list.txt
+  return fetch("list.txt")
+    .then(r => r.ok ? r.text() : Promise.reject("Local list.txt not found"))
+    .then(text => {
+      const arr = text.trim().split("\n").filter(Boolean);
+      if (arr.length) return arr;
+      throw "Local list.txt empty";
+    })
+    .catch(() => {
+      // 2. Remote fallback (GitHub Pages)
+      log(`[${ts()}] ⚠ Using remote fallback list.txt`);
+      return fetch("https://deadmanwalkingto.github.io/MacrosDmW/player/list.txt")
+        .then(r => r.ok ? r.text() : Promise.reject("Remote list.txt not found"))
+        .then(text => {
+          const arr = text.trim().split("\n").filter(Boolean);
+          if (arr.length) return arr;
+          throw "Remote list.txt empty";
+        })
+        .catch(() => {
+          // 3. Internal list
+          log(`[${ts()}] ⚠ Using internal IDs list`);
+          return internalList;
+        });
+    });
+}
+
+// --- Kick off list loading
+loadVideoList().then(list => {
+  videoList = list;
+  if (typeof YT !== "undefined" && YT.Player) {
+    initPlayers(getRandomVideos(8));
+  }
+}).catch(err => {
+  log(`[${ts()}] ❌ List load error: ${err}`);
+});
+
 // --- YouTube API ready -> init players
 function onYouTubeIframeAPIReady() {
-  initPlayers(getRandomVideos(8));
+  if (videoList.length) {
+    initPlayers(getRandomVideos(8));
+  } else {
+    const check = setInterval(() => {
+      if (videoList.length) {
+        clearInterval(check);
+        initPlayers(getRandomVideos(8));
+      }
+    }, 300);
+  }
 }
 
 function initPlayers(videoIds) {
   videoIds.forEach((id, i) => {
-    players[i] = new YT.Player(`player${i+1}`, {
+    players[i] = new YT.Player(`player${i + 1}`, {
       videoId: id,
       events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
     });
@@ -57,17 +109,13 @@ function initPlayers(videoIds) {
 function onPlayerReady(e) {
   const p = e.target;
   p.mute();
-
-  // Τυχαία καθυστέρηση εκκίνησης ανά player
   const startDelay = rndDelayMs(START_DELAY_MIN_S, START_DELAY_MAX_S);
   setTimeout(() => {
     const seek = rndInt(0, INIT_SEEK_MAX_S);
     p.seekTo(seek, true);
     p.playVideo();
     p.setPlaybackQuality('small');
-    log(`[${ts()}] ▶ Start after ${Math.round(startDelay/1000)}s: id=${p.getVideoData().video_id}, seek=${seek}s`);
-
-    // Φυσικές συμπεριφορές
+    log(`[${ts()}] ▶ Start after ${Math.round(startDelay / 1000)}s: id=${p.getVideoData().video_id}, seek=${seek}s`);
     scheduleRandomPauses(p);
     scheduleMidSeek(p);
   }, startDelay);
@@ -87,21 +135,19 @@ function onPlayerStateChange(e) {
 
 // --- Natural behaviors
 function scheduleRandomPauses(p) {
-  // Μικρή παύση νωρίς
   const delaySmall = rndDelayMs(30, 120);
   setTimeout(() => {
     const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
     p.pauseVideo(); stats.pauses++;
-    log(`[${ts()}] ⏸ Small pause ${Math.round(pauseLen/1000)}s: id=${p.getVideoData().video_id}`);
+    log(`[${ts()}] ⏸ Small pause ${Math.round(pauseLen / 1000)}s: id=${p.getVideoData().video_id}`);
     setTimeout(() => { p.playVideo(); log(`[${ts()}] ▶ Resume after small pause`); }, pauseLen);
   }, delaySmall);
 
-  // Μεγάλη παύση αργότερα
   const delayLarge = rndDelayMs(120, 240);
   setTimeout(() => {
     const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
     p.pauseVideo(); stats.pauses++;
-    log(`[${ts()}] ⏸ Large pause ${Math.round(pauseLen/1000)}s: id=${p.getVideoData().video_id}`);
+    log(`[${ts()}] ⏸ Large pause ${Math.round(pauseLen / 1000)}s: id=${p.getVideoData().video_id}`);
     setTimeout(() => { p.playVideo(); log(`[${ts()}] ▶ Resume after large pause`); }, pauseLen);
   }, delayLarge);
 }
@@ -138,17 +184,16 @@ function restartAll() {
   stats.restart++; log(`[${ts()}] 🔁 Restart All`);
 }
 
-// Mute/Unmute ως Enable Sound με τυχαία ένταση
 function toggleMuteAll() {
   if (isMutedAll) {
     players.forEach((p, i) => {
       p.unMute();
       const v = rndInt(UNMUTE_VOL_MIN, UNMUTE_VOL_MAX);
       p.setVolume(v);
-      log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i+1} -> ${v}%`);
+      log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i + 1} -> ${v}%`);
     });
   } else {
-    players.forEach((p, i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i+1}`); });
+    players.forEach((p, i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i + 1}`); });
   }
   isMutedAll = !isMutedAll;
 }
