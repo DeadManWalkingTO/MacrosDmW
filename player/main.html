@@ -5,7 +5,7 @@
   <style>
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr); /* 4 στήλες */
+      grid-template-columns: repeat(4, 1fr); /* 4 στήλες σε desktop */
       grid-gap: 10px;
       height: 80vh;
     }
@@ -22,10 +22,22 @@
       padding: 10px 20px;
       font-size: 16px;
     }
+    /* Responsive για κινητά */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 στήλες */
+        grid-gap: 5px;
+        height: auto;
+      }
+      iframe {
+        height: 200px; /* μικρότερο ύψος για κινητό */
+      }
+    }
   </style>
 </head>
 <body>
   <div class="controls">
+    <h1>Main Active Desktop Page</h1>
     <button onclick="playAll()">▶ Play All</button>
     <button onclick="pauseAll()">⏸ Pause All</button>
     <button onclick="nextAll()">🔄 Next Video All</button>
@@ -51,20 +63,18 @@
   <script>
     let players = [];
     let videoList = [];
-    let isMutedAll = true; // αρχικά muted
+    let isMutedAll = true;
 
-    // --- Ρυθμίσεις ---
-    const MIN_START_DELAY = 0;      // σε δευτερόλεπτα
-    const MAX_START_DELAY = 60;     // σε δευτερόλεπτα
-    const MIN_PLAY_TIME = 10;       // σε λεπτά
-    const MAX_PLAY_TIME = 15;       // σε λεπτά
+    const MIN_START_DELAY = 0;
+    const MAX_START_DELAY = 60;
+    const MIN_PLAY_TIME = 10;
+    const MAX_PLAY_TIME = 15;
 
-    // Φόρτωση λίστας από GitHub raw
     fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
       .then(response => response.text())
       .then(text => {
         videoList = text.trim().split("\n");
-        initPlayers(getRandomVideos(8)); // 8 βίντεο
+        initPlayers(getRandomVideos(8));
       });
 
     function getRandomVideos(n) {
@@ -143,16 +153,8 @@
     }
 
     // --- Κουμπιά ελέγχου ---
-    function playAll() {
-      players.forEach(p => { p.playVideo(); });
-      console.log("▶ Play All");
-    }
-
-    function pauseAll() {
-      players.forEach(p => { p.pauseVideo(); });
-      console.log("⏸ Pause All");
-    }
-
+    function playAll() { players.forEach(p => { p.playVideo(); }); console.log("▶ Play All"); }
+    function pauseAll() { players.forEach(p => { p.pauseVideo(); }); console.log("⏸ Pause All"); }
     function nextAll() {
       players.forEach(p => {
         let newId = getRandomVideos(1)[0];
@@ -161,7 +163,6 @@
         console.log(`🔄 Next Video: ID=${newId}`);
       });
     }
-
     function shuffleAll() {
       let shuffled = getRandomVideos(players.length);
       players.forEach((p, i) => {
@@ -170,12 +171,7 @@
         console.log(`🎲 Shuffle Video: Player${i+1} -> ID=${shuffled[i]}`);
       });
     }
-
-    function stopAll() {
-      players.forEach(p => { p.stopVideo(); });
-      console.log("⏹ Stop All");
-    }
-
+    function stopAll() { players.forEach(p => { p.stopVideo(); }); console.log("⏹ Stop All"); }
     function restartAll() {
       let newSet = getRandomVideos(players.length);
       players.forEach((p, i) => {
@@ -185,21 +181,14 @@
         console.log(`🔁 Restart Video: Player${i+1} -> ID=${newSet[i]}`);
       });
     }
-
     function toggleMuteAll() {
-      if (isMutedAll) {
-        players.forEach(p => { p.unMute(); });
-        console.log("🔊 Unmute All");
-      } else {
-        players.forEach(p => { p.mute(); });
-        console.log("🔇 Mute All");
-      }
+      if (isMutedAll) { players.forEach(p => { p.unMute(); }); console.log("🔊 Unmute All"); }
+      else { players.forEach(p => { p.mute(); }); console.log("🔇 Mute All"); }
       isMutedAll = !isMutedAll;
     }
-
     function randomizeVolumeAll() {
       players.forEach((p, i) => {
-        let randomVolume = Math.floor(Math.random() * 101); // 0–100%
+        let randomVolume = Math.floor(Math.random() * 101);
         p.setVolume(randomVolume);
         console.log(`🔊 Random Volume: Player${i+1} -> ${randomVolume}%`);
       });
