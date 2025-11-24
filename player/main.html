@@ -49,70 +49,125 @@
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let players=[],videoList=[],isMutedAll=true;
-    const NORMALIZE_VOLUME_TARGET=20;
-    const stats={autoNext:0,manualNext:0,shuffle:0,restart:0,pauses:0,volumeChanges:0};
+    // --- State
+    let players = [], videoList = [], isMutedAll = true;
+    const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
 
-    function updateStats(){
-      document.getElementById("statsPanel").innerHTML=
-        `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
-    }
+    // --- Config
+    const START_DELAY_MIN_S = 5;      // ελάχιστη καθυστέρηση εκκίνησης
+    const START_DELAY_MAX_S = 180;    // μέγιστη καθυστέρηση εκκίνησης
+    const INIT_SEEK_MAX_S   = 60;     // τυχαία αρχική μετακίνηση
+    const UNMUTE_VOL_MIN    = 10;     // τυχαία ένταση στο unmute (min)
+    const UNMUTE_VOL_MAX    = 30;     // τυχαία ένταση στο unmute (max)
+    const NORMALIZE_VOLUME_TARGET = 20;
 
+    // --- Helpers
+    const ts = () => new Date().toLocaleTimeString();
     function log(msg){
       console.log(msg);
-      const panel=document.getElementById("activityPanel");
-      const div=document.createElement("div");
-      div.textContent=msg;
+      const panel = document.getElementById("activityPanel");
+      const div = document.createElement("div");
+      div.textContent = msg;
       panel.appendChild(div);
-      panel.scrollTop=panel.scrollHeight;
+      panel.scrollTop = panel.scrollHeight;
       updateStats();
     }
-    const ts=()=>new Date().toLocaleTimeString();
-
-    fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
-      .then(r=>r.text())
-      .then(text=>{videoList=text.trim().split("\n").filter(Boolean);initPlayers(getRandomVideos(8));});
-
-    function getRandomVideos(n){return [...videoList].sort(()=>Math.random()-0.5).slice(0,n);}
-    function initPlayers(videoIds){
-      videoIds.forEach((id,i)=>{players[i]=new YT.Player(`player${i+1}`,{videoId:id,events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange}});});
+    function updateStats(){
+      document.getElementById("statsPanel").innerHTML =
+        `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
     }
-    function onPlayerReady(e){e.target.mute();e.target.playVideo();log(`[${ts()}] ▶ Ready: ${e.target.getVideoData().video_id}`);}
-    function onPlayerStateChange(e){
-      if(e.data===YT.PlayerState.ENDED){
-        const newId=getRandomVideos(1)[0];
-        e.target.loadVideoById(newId);
+    function rndInt(min, max){ return Math.floor(min + Math.random() * (max - min + 1)); }
+    function rndDelayMs(minS, maxS){ return (minS + Math.random() * (maxS - minS)) * 1000; }
+
+    // --- Load video list
+    fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
+      .then(r => r.text())
+      .then(text => { videoList = text.trim().split("\n").filter(Boolean); initPlayers(getRandomVideos(8)); });
+
+    function getRandomVideos(n){ return [...videoList].sort(() => Math.random() - 0.5).slice(0, n); }
+
+    function initPlayers(videoIds){
+      videoIds.forEach((id, i) => {
+        players[i] = new YT.Player(`player${i+1}`, {
+          videoId: id,
+          events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
+        });
+      });
+    }
+
+    // --- Player events
+    function onPlayerReady(event){
+      const p = event.target;
+      p.mute();
+
+      // Τυχαία καθυστέρηση εκκίνησης για κάθε player
+      const startDelayMs = rndDelayMs(START_DELAY_MIN_S, START_DELAY_MAX_S);
+      setTimeout(() => {
+        const seek = rndInt(0, INIT_SEEK_MAX_S);
+        p.seekTo(seek, true);
+        p.playVideo();
+        p.setPlaybackQuality('small');
+        log(`[${ts()}] ▶ Start after delay: id=${p.getVideoData().video_id}, delay=${Math.round(startDelayMs/1000)}s, seek=${seek}s`);
+      }, startDelayMs);
+    }
+
+    function onPlayerStateChange(event){
+      if (event.data === YT.PlayerState.ENDED) {
+        const newId = getRandomVideos(1)[0];
+        event.target.loadVideoById(newId);
         stats.autoNext++;
         log(`[${ts()}] ⏭ AutoNext: ${newId}`);
       }
     }
 
-    // Controls
-    function playAll(){players.forEach(p=>p.playVideo());log(`[${ts()}] ▶ Play All`);}
-    function pauseAll(){players.forEach(p=>p.pauseVideo());stats.pauses++;log(`[${ts()}] ⏸ Pause All`);}
-    function stopAll(){players.forEach(p=>p.stopVideo());log(`[${ts()}] ⏹ Stop All`);}
-    function nextAll(){players.forEach(p=>{let newId=getRandomVideos(1)[0];p.loadVideoById(newId);p.playVideo();});stats.manualNext++;log(`[${ts()}] ⏭ Next All`);}
-    function shuffleAll(){let sh=getRandomVideos(players.length);players.forEach((p,i)=>{p.loadVideoById(sh[i]);p.playVideo();});stats.shuffle++;log(`[${ts()}] 🎲 Shuffle All`);}
-    function restartAll(){let set=getRandomVideos(players.length);players.forEach((p,i)=>{p.stopVideo();p.loadVideoById(set[i]);p.playVideo();});stats.restart++;log(`[${ts()}] 🔁 Restart All`);}
-    
-    // Ενσωματωμένο Enable Sound με τυχαία ένταση
-    function toggleMuteAll(){
-      if(isMutedAll){
-        players.forEach((p,i)=>{
-          p.unMute();
-          let randomVol=Math.floor(10+Math.random()*21); // 10–30%
-          p.setVolume(randomVol);
-          log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i+1} -> ${randomVol}%`);
-        });
-      } else {
-        players.forEach((p,i)=>{p.mute();log(`[${ts()}] 🔇 Mute: Player${i+1}`);});
-      }
-      isMutedAll=!isMutedAll;
+    // --- Controls
+    function playAll(){ players.forEach(p => p.playVideo()); log(`[${ts()}] ▶ Play All`); }
+    function pauseAll(){ players.forEach(p => p.pauseVideo()); stats.pauses++; log(`[${ts()}] ⏸ Pause All`); }
+    function stopAll(){ players.forEach(p => p.stopVideo()); log(`[${ts()}] ⏹ Stop All`); }
+
+    function nextAll(){
+      players.forEach(p => { const newId = getRandomVideos(1)[0]; p.loadVideoById(newId); p.playVideo(); });
+      stats.manualNext++; log(`[${ts()}] ⏭ Next All`);
     }
 
-    function randomizeVolumeAll(){players.forEach((p,i)=>{let v=Math.floor(Math.random()*101);p.setVolume(v);});stats.volumeChanges++;log(`[${ts()}] 🔊 Randomize Volume All`);}
-    function normalizeVolumeAll(){players.forEach((p,i)=>{p.setVolume(NORMALIZE_VOLUME_TARGET);});stats.volumeChanges++;log(`[${ts()}] 🎚 Normalize Volume All`);}
-    function toggleTheme(){document.body.classList.toggle("light");log(`[${ts()}] 🌓 Theme toggled`);}
+    function shuffleAll(){
+      const sh = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.loadVideoById(sh[i]); p.playVideo(); });
+      stats.shuffle++; log(`[${ts()}] 🎲 Shuffle All`);
+    }
+
+    function restartAll(){
+      const set = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.stopVideo(); p.loadVideoById(set[i]); p.playVideo(); });
+      stats.restart++; log(`[${ts()}] 🔁 Restart All`);
+    }
+
+    // Mute/Unmute που λειτουργεί ως Enable Sound με τυχαία ένταση
+    function toggleMuteAll(){
+      if (isMutedAll) {
+        players.forEach((p,i) => {
+          p.unMute();
+          const v = rndInt(UNMUTE_VOL_MIN, UNMUTE_VOL_MAX); // 10–30%
+          p.setVolume(v);
+          log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i+1} -> ${v}%`);
+        });
+      } else {
+        players.forEach((p,i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i+1}`); });
+      }
+      isMutedAll = !isMutedAll;
+    }
+
+    function randomizeVolumeAll(){
+      players.forEach((p,i) => { const v = rndInt(0, 100); p.setVolume(v); });
+      stats.volumeChanges++; log(`[${ts()}] 🔊 Randomize Volume All`);
+    }
+
+    function normalizeVolumeAll(){
+      players.forEach((p,i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); });
+      stats.volumeChanges++; log(`[${ts()}] 🎚 Normalize Volume All`);
+    }
+
+    function toggleTheme(){ document.body.classList.toggle("light"); log(`[${ts()}] 🌓 Theme toggled`); }
   </script>
 </body>
 </html>
