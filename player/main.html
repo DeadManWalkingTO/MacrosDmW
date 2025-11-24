@@ -1,29 +1,128 @@
-function onPlayerReady(event) {
-  event.target.mute();
-  // Τυχαία καθυστέρηση εκκίνησης
-  let randomStartDelay = (MIN_START_DELAY + Math.random() * (MAX_START_DELAY - MIN_START_DELAY)) * 1000;
-  setTimeout(() => {
-    // Τυχαίο σημείο εκκίνησης μέσα στο πρώτο λεπτό
-    let randomSeek = Math.floor(Math.random() * 60);
-    event.target.seekTo(randomSeek, true);
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Auto YouTube Multi Viewer (Natural Behavior)</title>
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 στήλες */
+      grid-gap: 10px;
+      height: 90vh;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <div id="player1"></div>
+    <div id="player2"></div>
+    <div id="player3"></div>
+    <div id="player4"></div>
+    <div id="player5"></div>
+    <div id="player6"></div>
+    <div id="player7"></div>
+    <div id="player8"></div>
+  </div>
 
-    event.target.playVideo();
-    event.target.setPlaybackQuality('small'); 
-    console.log(`Player ξεκίνησε στο ID=${event.target.getVideoData().video_id}, από ${randomSeek}s`);
-    scheduleNext(event.target);
-    randomPause(event.target);
-  }, randomStartDelay);
-}
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let players = [];
+    let videoList = [];
 
-function randomPause(player) {
-  // Τυχαία παύση μέσα στα πρώτα 5 λεπτά
-  let pauseDelay = Math.random() * 300000; 
-  setTimeout(() => {
-    player.pauseVideo();
-    console.log(`Player έκανε pause στο ID=${player.getVideoData().video_id}`);
-    setTimeout(() => {
-      player.playVideo();
-      console.log(`Player συνέχισε το ID=${player.getVideoData().video_id}`);
-    }, 5000 + Math.random() * 5000); // pause 5–10s
-  }, pauseDelay);
-}
+    // --- Ρυθμίσεις ---
+    const MIN_START_DELAY = 0;      // σε δευτερόλεπτα
+    const MAX_START_DELAY = 60;     // σε δευτερόλεπτα
+    const MIN_PLAY_TIME = 10;       // σε λεπτά
+    const MAX_PLAY_TIME = 15;       // σε λεπτά
+
+    // Φόρτωση λίστας από GitHub raw
+    fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
+      .then(response => response.text())
+      .then(text => {
+        videoList = text.trim().split("\n");
+        initPlayers(getRandomVideos(8)); // 8 βίντεο
+      });
+
+    function getRandomVideos(n) {
+      let shuffled = videoList.sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, n);
+    }
+
+    function initPlayers(videoIds) {
+      videoIds.forEach((id, index) => {
+        players[index] = new YT.Player(`player${index+1}`, {
+          videoId: id,
+          events: { 'onReady': onPlayerReady }
+        });
+      });
+    }
+
+    function onPlayerReady(event) {
+      event.target.mute();
+
+      // Τυχαία καθυστέρηση εκκίνησης
+      let randomStartDelay = (MIN_START_DELAY + Math.random() * (MAX_START_DELAY - MIN_START_DELAY)) * 1000;
+      setTimeout(() => {
+        // Τυχαίο seek μέσα στα πρώτα 60s
+        let randomSeek = Math.floor(Math.random() * 60);
+        event.target.seekTo(randomSeek, true);
+
+        // Τυχαία ένταση (0–20%)
+        let randomVolume = Math.floor(Math.random() * 21);
+        event.target.setVolume(randomVolume);
+
+        event.target.playVideo();
+        event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση
+        console.log(`▶ Player ξεκίνησε: ID=${event.target.getVideoData().video_id}, seek=${randomSeek}s, volume=${randomVolume}%`);
+
+        scheduleNext(event.target);
+        randomPause(event.target);
+      }, randomStartDelay);
+    }
+
+    function scheduleNext(player) {
+      // Τυχαία διάρκεια προβολής (10–15 λεπτά) + μικρή καθυστέρηση (0–30s)
+      let randomDelay = (MIN_PLAY_TIME + Math.random() * (MAX_PLAY_TIME - MIN_PLAY_TIME)) * 60000;
+      let extraDelay = Math.random() * 30000;
+
+      setTimeout(() => {
+        let newId = getRandomVideos(1)[0];
+        player.loadVideoById(newId);
+
+        // Τυχαίο seek στο νέο βίντεο
+        let randomSeek = Math.floor(Math.random() * 60);
+        player.seekTo(randomSeek, true);
+
+        // Τυχαία ένταση
+        let randomVolume = Math.floor(Math.random() * 21);
+        player.setVolume(randomVolume);
+
+        player.mute(); // ξεκινάει muted για ασφάλεια autoplay
+        player.playVideo();
+        player.setPlaybackQuality('small');
+
+        console.log(`🔄 Player άλλαξε: ID=${newId}, seek=${randomSeek}s, volume=${randomVolume}%, delay=${(randomDelay+extraDelay)/1000}s`);
+
+        scheduleNext(player);
+        randomPause(player);
+      }, randomDelay + extraDelay);
+    }
+
+    function randomPause(player) {
+      // Τυχαία παύση μέσα στα πρώτα 5 λεπτά
+      let pauseDelay = Math.random() * 300000;
+      setTimeout(() => {
+        player.pauseVideo();
+        console.log(`⏸ Player pause: ID=${player.getVideoData().video_id}`);
+        setTimeout(() => {
+          player.playVideo();
+          console.log(`▶ Player resume: ID=${player.getVideoData().video_id}`);
+        }, 5000 + Math.random() * 5000); // pause 5–10s
+      }, pauseDelay);
+    }
+  </script>
+</body>
+</html>
