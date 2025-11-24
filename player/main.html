@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto YouTube Multi Viewer (Full Controls)</title>
+  <title>Auto YouTube Multi Viewer (Final Script)</title>
   <style>
     .grid {
       display: grid;
@@ -75,7 +75,10 @@
       videoIds.forEach((id, index) => {
         players[index] = new YT.Player(`player${index+1}`, {
           videoId: id,
-          events: { 'onReady': onPlayerReady }
+          events: { 
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
         });
       });
     }
@@ -125,6 +128,17 @@
           console.log(`▶ Player resume: ID=${player.getVideoData().video_id}`);
         }, 5000 + Math.random() * 5000);
       }, pauseDelay);
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        let newId = getRandomVideos(1)[0];
+        event.target.loadVideoById(newId);
+        let randomSeek = Math.floor(Math.random() * 60);
+        event.target.seekTo(randomSeek, true);
+        event.target.setPlaybackQuality('small');
+        console.log(`⏭ Auto‑Next: Player συνέχισε σε νέο ID=${newId}`);
+      }
     }
 
     // --- Κουμπιά ελέγχου ---
