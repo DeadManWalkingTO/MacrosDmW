@@ -1,25 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="el">
 <head>
+  <meta charset="utf-8">
   <title>Main Active Desktop Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#eee; }
-    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; }
-    .controls h1 { margin:0 0 8px; }
+    :root { --gap: 10px; --grid-height: 60vh; }
+    body { margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#111; color:#eee; }
+    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; border-bottom:1px solid #333; }
+    .controls h1 { margin:0 0 8px; font-size:20px; }
     .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
     button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
-    button:hover { background:#2b2b2b; }
-    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:10px; height:60vh; }
+    button:hover { background:#2b2b2b; border-color:#666; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap); padding:var(--gap); height:var(--grid-height); }
     iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
-    @media(max-width:768px){ .grid{grid-template-columns:repeat(2,1fr);height:auto;} iframe{height:220px;} }
+    @media (max-width:768px) {
+      .grid { grid-template-columns:repeat(2,1fr); height:auto; }
+      iframe { height:220px; }
+    }
     .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
-    .stats { background:#222; padding:8px; font-size:12px; margin-top:6px; border-radius:6px; }
+    .stats { background:#222; padding:8px; font-size:12px; border-top:1px solid #333; }
+    /* Light mode */
     body.light { background:#f9f9f9; color:#222; }
-    body.light .controls { background:#eaeaea; }
+    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
     body.light button { background:#fff; color:#222; border-color:#ccc; }
-    body.light button:hover { background:#ddd; }
-    body.light .activity { background:#eaeaea; }
-    body.light .stats { background:#ddd; }
+    body.light button:hover { background:#ddd; border-color:#999; }
+    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
+    body.light .stats { background:#ddd; border-top-color:#ccc; }
   </style>
 </head>
 <body>
@@ -28,10 +35,10 @@
     <div class="row">
       <button onclick="playAll()">▶ Play All</button>
       <button onclick="pauseAll()">⏸ Pause All</button>
+      <button onclick="stopAll()">⏹ Stop All</button>
       <button onclick="nextAll()">⏭ Next All</button>
       <button onclick="shuffleAll()">🎲 Shuffle All</button>
       <button onclick="restartAll()">🔁 Restart All</button>
-      <button onclick="stopAll()">⏹ Stop All</button>
       <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
       <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
       <button onclick="normalizeVolumeAll()">🎚 Volume Normalize All</button>
@@ -45,88 +52,189 @@
   </div>
 
   <div class="activity" id="activityPanel"></div>
-  <div class="stats" id="statsPanel"></div>
+  <div class="stats" id="statsPanel">📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0</div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let players=[],videoList=[],isMutedAll=true;
-    const stats={autoNext:0,manualNext:0,shuffle:0,restart:0,pauses:0,volumeChanges:0};
+    // --- State
+    let players = [];
+    let videoList = [];
+    let isMutedAll = true;
+    const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
 
-    // Config
-    const START_DELAY_MIN_S=5, START_DELAY_MAX_S=180;
-    const INIT_SEEK_MAX_S=60;
-    const UNMUTE_VOL_MIN=10, UNMUTE_VOL_MAX=30;
-    const NORMALIZE_VOLUME_TARGET=20;
-    const PAUSE_SMALL=[2000,5000], PAUSE_LARGE=[15000,30000];
-    const MID_SEEK_INTERVAL_MIN=[5,9], MID_SEEK_WINDOW_S=[30,120];
+    // --- Config
+    const START_DELAY_MIN_S = 5, START_DELAY_MAX_S = 180;
+    const INIT_SEEK_MAX_S = 60;
+    const UNMUTE_VOL_MIN = 10, UNMUTE_VOL_MAX = 30;
+    const NORMALIZE_VOLUME_TARGET = 20;
+    const PAUSE_SMALL_MS = [2000, 5000];
+    const PAUSE_LARGE_MS = [15000, 30000];
+    const MID_SEEK_INTERVAL_MIN = [5, 9];
+    const MID_SEEK_WINDOW_S = [30, 120];
 
-    const ts=()=>new Date().toLocaleTimeString();
-    function log(msg){console.log(msg);
-      const panel=document.getElementById("activityPanel");
-      const div=document.createElement("div");div.textContent=msg;
-      panel.appendChild(div);panel.scrollTop=panel.scrollHeight;updateStats();}
-    function updateStats(){document.getElementById("statsPanel").innerHTML=
-      `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;}
-    function rndInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
-    function rndDelayMs(minS,maxS){return (minS+Math.random()*(maxS-minS))*1000;}
+    // --- Utils
+    const ts = () => new Date().toLocaleTimeString();
+    function log(msg) {
+      console.log(msg);
+      const panel = document.getElementById("activityPanel");
+      const div = document.createElement("div");
+      div.textContent = msg;
+      panel.appendChild(div);
+      panel.scrollTop = panel.scrollHeight;
+      updateStats();
+    }
+    function updateStats() {
+      document.getElementById("statsPanel").textContent =
+        `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+    }
+    const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
+    const rndDelayMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
 
+    // --- Load video list
     fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
-      .then(r=>r.text()).then(text=>{videoList=text.trim().split("\n").filter(Boolean);initPlayers(getRandomVideos(8));});
+      .then(r => r.text())
+      .then(text => { videoList = text.trim().split("\n").filter(Boolean); })
+      .catch(err => log(`[${ts()}] ⚠ Σφάλμα φόρτωσης λίστας: ${err}`));
 
-    function getRandomVideos(n){return [...videoList].sort(()=>Math.random()-0.5).slice(0,n);}
-    function initPlayers(videoIds){
-      videoIds.forEach((id,i)=>{players[i]=new YT.Player(`player${i+1}`,{videoId:id,events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange}});});
-    }
-
-    function onPlayerReady(e){
-      const p=e.target; p.mute();
-      const startDelay=rndDelayMs(START_DELAY_MIN_S,START_DELAY_MAX_S);
-      setTimeout(()=>{
-        const seek=rndInt(0,INIT_SEEK_MAX_S);
-        p.seekTo(seek,true); p.playVideo(); p.setPlaybackQuality('small');
-        log(`[${ts()}] ▶ Start after ${Math.round(startDelay/1000)}s: id=${p.getVideoData().video_id}, seek=${seek}s`);
-        scheduleRandomPauses(p); scheduleMidSeek(p);
-      },startDelay);
-    }
-
-    function onPlayerStateChange(e){
-      if(e.data===YT.PlayerState.ENDED){
-        const newId=getRandomVideos(1)[0];
-        e.target.loadVideoById(newId); stats.autoNext++;
-        log(`[${ts()}] ⏭ AutoNext: ${newId}`);
-        scheduleRandomPauses(e.target); scheduleMidSeek(e.target);
+    // --- YouTube API ready -> init players
+    function onYouTubeIframeAPIReady() {
+      if (!videoList.length) {
+        // Αν η λίστα δεν έχει φορτώσει ακόμη, περίμενε λίγο και ξαναδοκίμασε
+        const check = setInterval(() => {
+          if (videoList.length) { clearInterval(check); initPlayers(getRandomVideos(8)); }
+        }, 300);
+      } else {
+        initPlayers(getRandomVideos(8));
       }
     }
 
-    // Random pauses
-    function scheduleRandomPauses(p){
-      const delay=rndDelayMs(30,120); // μέσα στα πρώτα 2 λεπτά
-      setTimeout(()=>{
-        const pauseLen=rndInt(PAUSE_SMALL[0],PAUSE_SMALL[1]);
-        p.pauseVideo(); stats.pauses++;
-        log(`[${ts()}] ⏸ Small pause ${pauseLen/1000}s: id=${p.getVideoData().video_id}`);
-        setTimeout(()=>{p.playVideo();log(`[${ts()}] ▶ Resume after small pause`);},pauseLen);
-      },delay);
-      const delay2=rndDelayMs(120,240);
-      setTimeout(()=>{
-        const pauseLen=rndInt(PAUSE_LARGE[0],PAUSE_LARGE[1]);
-        p.pauseVideo(); stats.pauses++;
-        log(`[${ts()}] ⏸ Large pause ${pauseLen/1000}s: id=${p.getVideoData().video_id}`);
-        setTimeout(()=>{p.playVideo();log(`[${ts()}] ▶ Resume after large pause`);},pauseLen);
-      },delay2);
+    function getRandomVideos(n) { return [...videoList].sort(() => Math.random() - 0.5).slice(0, n); }
+
+    function initPlayers(videoIds) {
+      videoIds.forEach((id, i) => {
+        players[i] = new YT.Player(`player${i+1}`, {
+          videoId: id,
+          events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
+        });
+      });
+      log(`[${ts()}] ✅ Players initialized (${videoIds.length})`);
     }
 
-    // Mid-seek
-    function scheduleMidSeek(p){
-      const interval=rndInt(MID_SEEK_INTERVAL_MIN[0],MID_SEEK_INTERVAL_MIN[1])*60000;
-      setTimeout(()=>{
-        const seek=rndInt(MID_SEEK_WINDOW_S[0],MID_SEEK_WINDOW_S[1]);
-        p.seekTo(seek,true);
-        log(`[${ts()}] ⤴ Mid-seek to ${seek}s: id=${p.getVideoData().video_id}`);
+    function onPlayerReady(e) {
+      const p = e.target;
+      p.mute();
+
+      // Τυχαία καθυστέρηση εκκίνησης ανά player
+      const startDelay = rndDelayMs(START_DELAY_MIN_S, START_DELAY_MAX_S);
+      setTimeout(() => {
+        const seek = rndInt(0, INIT_SEEK_MAX_S);
+        p.seekTo(seek, true);
+        p.playVideo();
+        p.setPlaybackQuality('small');
+        log(`[${ts()}] ▶ Start after ${Math.round(startDelay/1000)}s: id=${p.getVideoData().video_id}, seek=${seek}s`);
+
+        // Προγραμματισμός φυσικών συμπεριφορών
+        scheduleRandomPauses(p);
         scheduleMidSeek(p);
-      },interval);
+      }, startDelay);
     }
 
-    // Controls
-    function playAll(){players.forEach(p=>p.playVideo());log(`[${ts()}] ▶ Play All`);}
-    function pauseAll(){players.forEach(p=>p.pauseVideo());stats.pauses++;log(`[${ts()}] ⏸ Pause All`
+    function onPlayerStateChange(e) {
+      if (e.data === YT.PlayerState.ENDED) {
+        const p = e.target;
+        const newId = getRandomVideos(1)[0];
+        p.loadVideoById(newId);
+        stats.autoNext++;
+        log(`[${ts()}] ⏭ AutoNext: ${newId}`);
+        // Επαναπρογραμματισμός συμπεριφορών για το νέο βίντεο
+        scheduleRandomPauses(p);
+        scheduleMidSeek(p);
+      }
+    }
+
+    // --- Natural behaviors
+    function scheduleRandomPauses(p) {
+      // Μικρή παύση νωρίς
+      const delaySmall = rndDelayMs(30, 120);
+      setTimeout(() => {
+        const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
+        p.pauseVideo(); stats.pauses++;
+        log(`[${ts()}] ⏸ Small pause ${Math.round(pauseLen/1000)}s: id=${p.getVideoData().video_id}`);
+        setTimeout(() => { p.playVideo(); log(`[${ts()}] ▶ Resume after small pause`); }, pauseLen);
+      }, delaySmall);
+
+      // Μεγάλη παύση αργότερα
+      const delayLarge = rndDelayMs(120, 240);
+      setTimeout(() => {
+        const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
+        p.pauseVideo(); stats.pauses++;
+        log(`[${ts()}] ⏸ Large pause ${Math.round(pauseLen/1000)}s: id=${p.getVideoData().video_id}`);
+        setTimeout(() => { p.playVideo(); log(`[${ts()}] ▶ Resume after large pause`); }, pauseLen);
+      }, delayLarge);
+    }
+
+    function scheduleMidSeek(p) {
+      const interval = rndInt(MID_SEEK_INTERVAL_MIN[0], MID_SEEK_INTERVAL_MIN[1]) * 60000;
+      setTimeout(() => {
+        const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
+        p.seekTo(seek, true);
+        log(`[${ts()}] ⤴ Mid-seek to ${seek}s: id=${p.getVideoData().video_id}`);
+        // Επαναληπτικά mid-seeks
+        scheduleMidSeek(p);
+      }, interval);
+    }
+
+    // --- Controls
+    function playAll() { players.forEach(p => p.playVideo()); log(`[${ts()}] ▶ Play All`); }
+    function pauseAll() { players.forEach(p => p.pauseVideo()); stats.pauses++; log(`[${ts()}] ⏸ Pause All`); }
+    function stopAll() { players.forEach(p => p.stopVideo()); log(`[${ts()}] ⏹ Stop All`); }
+
+    function nextAll() {
+      players.forEach(p => { const newId = getRandomVideos(1)[0]; p.loadVideoById(newId); p.playVideo(); });
+      stats.manualNext++; log(`[${ts()}] ⏭ Next All`);
+    }
+
+    function shuffleAll() {
+      const sh = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.loadVideoById(sh[i]); p.playVideo(); });
+      stats.shuffle++; log(`[${ts()}] 🎲 Shuffle All`);
+    }
+
+    function restartAll() {
+      const set = getRandomVideos(players.length);
+      players.forEach((p,i) => { p.stopVideo(); p.loadVideoById(set[i]); p.playVideo(); });
+      stats.restart++; log(`[${ts()}] 🔁 Restart All`);
+    }
+
+    // Mute/Unmute ως Enable Sound με τυχαία ένταση
+    function toggleMuteAll() {
+      if (isMutedAll) {
+        players.forEach((p,i) => {
+          p.unMute();
+          const v = rndInt(UNMUTE_VOL_MIN, UNMUTE_VOL_MAX); // 10–30%
+          p.setVolume(v);
+          log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i+1} -> ${v}%`);
+        });
+      } else {
+        players.forEach((p,i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i+1}`); });
+      }
+      isMutedAll = !isMutedAll;
+    }
+
+    function randomizeVolumeAll() {
+      players.forEach((p,i) => { const v = rndInt(0, 100); p.setVolume(v); });
+      stats.volumeChanges++; log(`[${ts()}] 🔊 Randomize Volume All`);
+    }
+
+    function normalizeVolumeAll() {
+      players.forEach((p,i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); });
+      stats.volumeChanges++; log(`[${ts()}] 🎚 Normalize Volume All`);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      log(`[${ts()}] 🌓 Theme toggled`);
+    }
+  </script>
+</body>
+</html>
