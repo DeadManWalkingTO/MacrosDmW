@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto YouTube Multi Viewer Low Quality</title>
+  <title>Auto YouTube Multi Viewer (8 Players)</title>
   <style>
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(4, 1fr); /* 4 στήλες */
       grid-gap: 10px;
       height: 90vh;
     }
@@ -21,6 +21,10 @@
     <div id="player2"></div>
     <div id="player3"></div>
     <div id="player4"></div>
+    <div id="player5"></div>
+    <div id="player6"></div>
+    <div id="player7"></div>
+    <div id="player8"></div>
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
@@ -33,7 +37,7 @@
       .then(response => response.text())
       .then(text => {
         videoList = text.trim().split("\n");
-        initPlayers(getRandomVideos(4));
+        initPlayers(getRandomVideos(8)); // 8 βίντεο
       });
 
     function getRandomVideos(n) {
@@ -53,7 +57,7 @@
     function onPlayerReady(event) {
       event.target.mute();
       event.target.playVideo();
-      event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση στην αρχή
+      event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση
       scheduleNext(event.target);
     }
 
