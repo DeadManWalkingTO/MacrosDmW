@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto YouTube Multi Viewer (8 Players)</title>
+  <title>Auto YouTube Multi Viewer (8 Players Random Time)</title>
   <style>
     .grid {
       display: grid;
@@ -62,6 +62,8 @@
     }
 
     function scheduleNext(player) {
+      // Τυχαίο διάστημα μεταξύ 10 και 15 λεπτών
+      let randomDelay = (10 + Math.random() * 5) * 60000; 
       setTimeout(() => {
         let newId = getRandomVideos(1)[0];
         player.loadVideoById(newId);
@@ -69,7 +71,7 @@
         player.playVideo();
         player.setPlaybackQuality('small'); // χαμηλή ανάλυση σε κάθε νέο βίντεο
         scheduleNext(player);
-      }, 600000); // 10 λεπτά
+      }, randomDelay);
     }
   </script>
 </body>
