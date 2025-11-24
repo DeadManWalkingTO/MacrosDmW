@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Main Desctop Page</title>
+  <title>Main Active Desktop Page</title>
   <style>
     .grid {
       display: grid;
@@ -33,6 +33,7 @@
     <button onclick="stopAll()">⏹ Stop All</button>
     <button onclick="restartAll()">🔁 Restart All</button>
     <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
+    <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
   </div>
 
   <div class="grid">
@@ -194,6 +195,14 @@
         console.log("🔇 Mute All");
       }
       isMutedAll = !isMutedAll;
+    }
+
+    function randomizeVolumeAll() {
+      players.forEach((p, i) => {
+        let randomVolume = Math.floor(Math.random() * 101); // 0–100%
+        p.setVolume(randomVolume);
+        console.log(`🔊 Random Volume: Player${i+1} -> ${randomVolume}%`);
+      });
     }
   </script>
 </body>
