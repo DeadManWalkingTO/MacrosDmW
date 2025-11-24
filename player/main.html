@@ -3,74 +3,17 @@
 <head>
   <title>Main Active Desktop Page</title>
   <style>
-    :root {
-      --bg: #111;
-      --fg: #eee;
-      --panel-bg: #1a1a1a;
-      --btn-bg: #222;
-      --btn-fg: #eee;
-      --btn-border: #444;
-    }
-    body.light {
-      --bg: #f9f9f9;
-      --fg: #222;
-      --panel-bg: #eaeaea;
-      --btn-bg: #fff;
-      --btn-fg: #222;
-      --btn-border: #ccc;
-    }
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-    }
-    .controls {
-      position: sticky;
-      top: 0;
-      background: var(--panel-bg);
-      border-bottom: 1px solid var(--btn-border);
-      padding: 12px;
-      z-index: 10;
-      text-align: center;
-    }
-    .controls h1 { margin: 0 0 8px; font-size: 20px; }
-    .controls .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    button {
-      border: 1px solid var(--btn-border);
-      background: var(--btn-bg);
-      color: var(--btn-fg);
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background .15s ease, border-color .15s ease;
-    }
-    button:hover { background: #2b2b2b; border-color: #666; }
-    body.light button:hover { background: #ddd; border-color: #999; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      padding: 10px;
-      height: 70vh;
-    }
-    iframe { width: 100%; height: 100%; border: none; border-radius: 8px; background: #000; }
-
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: repeat(2, 1fr); height: auto; }
-      iframe { height: 220px; }
-    }
-
-    .activity {
-      background: var(--panel-bg);
-      border-top: 1px solid var(--btn-border);
-      padding: 10px;
-      font-size: 13px;
-      height: 20vh;
-      overflow-y: auto;
-    }
-    .log-entry { margin: 2px 0; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#eee; }
+    .controls { background:#1a1a1a; padding:12px; text-align:center; }
+    .controls h1 { margin:0 0 8px; }
+    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#2b2b2b; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:10px; height:60vh; }
+    iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
+    @media(max-width:768px){ .grid{grid-template-columns:repeat(2,1fr);height:auto;} iframe{height:220px;} }
+    .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
+    .stats { background:#222; padding:8px; font-size:12px; margin-top:6px; border-radius:6px; }
   </style>
 </head>
 <body>
@@ -96,94 +39,59 @@
   </div>
 
   <div class="activity" id="activityPanel"></div>
+  <div class="stats" id="statsPanel"></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    let players = [];
-    let videoList = [];
-    let isMutedAll = true;
+    let players=[],videoList=[],isMutedAll=true;
+    const NORMALIZE_VOLUME_TARGET=20;
+    const stats={autoNext:0,manualNext:0,shuffle:0,restart:0,pauses:0,volumeChanges:0};
 
-    const NORMALIZE_VOLUME_TARGET = 20;
+    function updateStats(){
+      document.getElementById("statsPanel").innerHTML=
+        `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+    }
 
-    // --- Logging helper ---
-    function log(msg) {
+    function log(msg){
       console.log(msg);
-      const panel = document.getElementById("activityPanel");
-      const div = document.createElement("div");
-      div.className = "log-entry";
-      div.textContent = msg;
+      const panel=document.getElementById("activityPanel");
+      const div=document.createElement("div");
+      div.textContent=msg;
       panel.appendChild(div);
-      panel.scrollTop = panel.scrollHeight;
+      panel.scrollTop=panel.scrollHeight;
+      updateStats();
     }
-    const ts = () => new Date().toLocaleTimeString();
+    const ts=()=>new Date().toLocaleTimeString();
 
-    // --- Load video list ---
     fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
-      .then(r => r.text())
-      .then(text => {
-        videoList = text.trim().split("\n").filter(Boolean);
-        initPlayers(getRandomVideos(8));
-      });
+      .then(r=>r.text())
+      .then(text=>{videoList=text.trim().split("\n").filter(Boolean);initPlayers(getRandomVideos(8));});
 
-    function getRandomVideos(n) {
-      const shuffled = [...videoList].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, n);
+    function getRandomVideos(n){return [...videoList].sort(()=>Math.random()-0.5).slice(0,n);}
+    function initPlayers(videoIds){
+      videoIds.forEach((id,i)=>{players[i]=new YT.Player(`player${i+1}`,{videoId:id,events:{onReady:onPlayerReady,onStateChange:onPlayerStateChange}});});
     }
-
-    function initPlayers(videoIds) {
-      videoIds.forEach((id, index) => {
-        players[index] = new YT.Player(`player${index+1}`, {
-          videoId: id,
-          events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
-        });
-      });
-    }
-
-    function onPlayerReady(event) {
-      const p = event.target;
-      p.mute();
-      p.playVideo();
-      log(`[${ts()}] ▶ Player ready: id=${p.getVideoData().video_id}`);
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED) {
-        const newId = getRandomVideos(1)[0];
-        event.target.loadVideoById(newId);
-        log(`[${ts()}] ⏭ Auto‑next: id=${newId}`);
+    function onPlayerReady(e){e.target.mute();e.target.playVideo();log(`[${ts()}] ▶ Ready: ${e.target.getVideoData().video_id}`);}
+    function onPlayerStateChange(e){
+      if(e.data===YT.PlayerState.ENDED){
+        const newId=getRandomVideos(1)[0];
+        e.target.loadVideoById(newId);
+        stats.autoNext++;
+        log(`[${ts()}] ⏭ AutoNext: ${newId}`);
       }
     }
 
-    // --- Controls ---
-    function playAll() { players.forEach(p => p.playVideo()); log(`[${ts()}] ▶ Play All`); }
-    function pauseAll() { players.forEach(p => p.pauseVideo()); log(`[${ts()}] ⏸ Pause All`); }
-    function stopAll() { players.forEach(p => p.stopVideo()); log(`[${ts()}] ⏹ Stop All`); }
-    function nextAll() {
-      players.forEach(p => { let newId = getRandomVideos(1)[0]; p.loadVideoById(newId); p.playVideo(); log(`[${ts()}] ⏭ Next: id=${newId}`); });
-    }
-    function shuffleAll() {
-      let shuffled = getRandomVideos(players.length);
-      players.forEach((p,i) => { p.loadVideoById(shuffled[i]); p.playVideo(); log(`[${ts()}] 🎲 Shuffle: p${i+1} -> ${shuffled[i]}`); });
-    }
-    function restartAll() {
-      let newSet = getRandomVideos(players.length);
-      players.forEach((p,i) => { p.stopVideo(); p.loadVideoById(newSet[i]); p.playVideo(); log(`[${ts()}] 🔁 Restart: p${i+1} -> ${newSet[i]}`); });
-    }
-    function toggleMuteAll() {
-      if (isMutedAll) { players.forEach(p => p.unMute()); log(`[${ts()}] 🔊 Unmute All`); }
-      else { players.forEach(p => p.mute()); log(`[${ts()}] 🔇 Mute All`); }
-      isMutedAll = !isMutedAll;
-    }
-    function randomizeVolumeAll() {
-      players.forEach((p,i) => { let v = Math.floor(Math.random()*101); p.setVolume(v); log(`[${ts()}] 🔊 Random volume: p${i+1} -> ${v}%`); });
-    }
-    function normalizeVolumeAll() {
-      players.forEach((p,i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); log(`[${ts()}] 🎚 Normalize volume: p${i+1} -> ${NORMALIZE_VOLUME_TARGET}%`); });
-    }
-    function toggleTheme() {
-      document.body.classList.toggle("light");
-      log(`[${ts()}] 🌓 Theme toggled: ${document.body.classList.contains("light") ? "Light" : "Dark"}`);
-    }
+    // Controls
+    function playAll(){players.forEach(p=>p.playVideo());log(`[${ts()}] ▶ Play All`);}
+    function pauseAll(){players.forEach(p=>p.pauseVideo());stats.pauses++;log(`[${ts()}] ⏸ Pause All`);}
+    function stopAll(){players.forEach(p=>p.stopVideo());log(`[${ts()}] ⏹ Stop All`);}
+    function nextAll(){players.forEach(p=>{let newId=getRandomVideos(1)[0];p.loadVideoById(newId);p.playVideo();});stats.manualNext++;log(`[${ts()}] ⏭ Next All`);}
+    function shuffleAll(){let sh=getRandomVideos(players.length);players.forEach((p,i)=>{p.loadVideoById(sh[i]);p.playVideo();});stats.shuffle++;log(`[${ts()}] 🎲 Shuffle All`);}
+    function restartAll(){let set=getRandomVideos(players.length);players.forEach((p,i)=>{p.stopVideo();p.loadVideoById(set[i]);p.playVideo();});stats.restart++;log(`[${ts()}] 🔁 Restart All`);}
+    function toggleMuteAll(){if(isMutedAll){players.forEach(p=>p.unMute());log(`[${ts()}] 🔊 Unmute All`);}else{players.forEach(p=>p.mute());log(`[${ts()}] 🔇 Mute All`);}isMutedAll=!isMutedAll;}
+    function randomizeVolumeAll(){players.forEach((p,i)=>{let v=Math.floor(Math.random()*101);p.setVolume(v);});stats.volumeChanges++;log(`[${ts()}] 🔊 Randomize Volume All`);}
+    function normalizeVolumeAll(){players.forEach((p,i)=>{p.setVolume(NORMALIZE_VOLUME_TARGET);});stats.volumeChanges++;log(`[${ts()}] 🎚 Normalize Volume All`);}
+    function toggleTheme(){document.body.classList.toggle("light");log(`[${ts()}] 🌓 Theme toggled`);}
   </script>
 </body>
 </html>
