@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Main Active Desktop Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --gap: 10px; --grid-height: 60vh; }
-    body { margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#111; color:#eee; }
-    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; border-bottom:1px solid #333; }
-    .controls h1 { margin:0 0 8px; font-size:20px; }
-    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-    button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
-    button:hover { background:#2b2b2b; border-color:#666; }
-    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap); padding:var(--gap); height:var(--grid-height); }
-    iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
-    @media (max-width:768px) {
-      .grid { grid-template-columns:repeat(2,1fr); height:auto; }
-      iframe { height:220px; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #111; color: #eee; }
+    .controls { background: #1a1a1a; padding: 12px; text-align: center; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #333; }
+    .controls h1 { margin: 0 0 8px; font-size: 20px; }
+    .controls .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    button { background: #222; color: #eee; border: 1px solid #444; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #2b2b2b; border-color: #666; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); padding: var(--gap); height: var(--grid-height); }
+    iframe { width: 100%; height: 100%; border: none; border-radius: 8px; background: #000; }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: repeat(2, 1fr); height: auto; }
+      iframe { height: 220px; }
     }
-    .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
-    .stats { background:#222; padding:8px; font-size:12px; border-top:1px solid #333; }
+    .activity { background: #1a1a1a; border-top: 1px solid #333; padding: 10px; font-size: 13px; height: 20vh; overflow-y: auto; }
+    .stats { background: #222; padding: 8px; font-size: 12px; border-top: 1px solid #333; }
     /* Light mode */
-    body.light { background:#f9f9f9; color:#222; }
-    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
-    body.light button { background:#fff; color:#222; border-color:#ccc; }
-    body.light button:hover { background:#ddd; border-color:#999; }
-    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
-    body.light .stats { background:#ddd; border-top-color:#ccc; }
+    body.light { background: #f9f9f9; color: #222; }
+    body.light .controls { background: #eaeaea; border-bottom-color: #ccc; }
+    body.light button { background: #fff; color: #222; border-color: #ccc; }
+    body.light button:hover { background: #ddd; border-color: #999; }
+    body.light .activity { background: #eaeaea; border-top-color: #ccc; }
+    body.light .stats { background: #ddd; border-top-color: #ccc; }
   </style>
 </head>
 <body>
@@ -90,21 +90,46 @@
     const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
     const rndDelayMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
 
-    // --- Load video list
-    fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
-      .then(r => r.text())
-      .then(text => { videoList = text.trim().split("\n").filter(Boolean); })
-      .catch(err => log(`[${ts()}] ⚠ Σφάλμα φόρτωσης λίστας: ${err}`));
+    // --- Video list loading (local first, fallback to GitHub)
+    function loadVideoList() {
+      return fetch("list.txt")
+        .then(r => r.ok ? r.text() : Promise.reject("Τοπικό list.txt δεν βρέθηκε"))
+        .then(text => {
+          const arr = text.trim().split("\n").filter(Boolean);
+          if (arr.length) return arr;
+          throw "Τοπικό list.txt κενό";
+        })
+        .catch(() => {
+          log(`[${ts()}] ⚠ Χρήση fallback GitHub list.txt`);
+          return fetch("https://raw.githubusercontent.com/DeadManWalkingTO/MacrosDmW/refs/heads/main/player/list.txt")
+            .then(r => r.text())
+            .then(text => text.trim().split("\n").filter(Boolean));
+        });
+    }
 
-    // --- YouTube API ready -> init players
-    function onYouTubeIframeAPIReady() {
-      if (!videoList.length) {
-        // Αν η λίστα δεν έχει φορτώσει ακόμη, περίμενε λίγο και ξαναδοκίμασε
-        const check = setInterval(() => {
-          if (videoList.length) { clearInterval(check); initPlayers(getRandomVideos(8)); }
-        }, 300);
-      } else {
+    // Ξεκίνημα φόρτωσης λίστας
+    loadVideoList().then(list => {
+      videoList = list;
+      // Αν το API είναι ήδη έτοιμο, ξεκινάμε άμεσα
+      if (typeof YT !== "undefined" && YT.Player) {
         initPlayers(getRandomVideos(8));
+      }
+    }).catch(err => {
+      log(`[${ts()}] ❌ Σφάλμα φόρτωσης λίστας: ${err}`);
+    });
+
+    // Η YouTube API καλεί αυτή τη συνάρτηση όταν είναι έτοιμη
+    function onYouTubeIframeAPIReady() {
+      if (videoList.length) {
+        initPlayers(getRandomVideos(8));
+      } else {
+        // Αν η λίστα καθυστερεί, περίμενε μέχρι να φορτωθεί
+        const check = setInterval(() => {
+          if (videoList.length) {
+            clearInterval(check);
+            initPlayers(getRandomVideos(8));
+          }
+        }, 300);
       }
     }
 
@@ -133,7 +158,7 @@
         p.setPlaybackQuality('small');
         log(`[${ts()}] ▶ Start after ${Math.round(startDelay/1000)}s: id=${p.getVideoData().video_id}, seek=${seek}s`);
 
-        // Προγραμματισμός φυσικών συμπεριφορών
+        // Φυσικές συμπεριφορές
         scheduleRandomPauses(p);
         scheduleMidSeek(p);
       }, startDelay);
@@ -196,38 +221,38 @@
 
     function shuffleAll() {
       const sh = getRandomVideos(players.length);
-      players.forEach((p,i) => { p.loadVideoById(sh[i]); p.playVideo(); });
+      players.forEach((p, i) => { p.loadVideoById(sh[i]); p.playVideo(); });
       stats.shuffle++; log(`[${ts()}] 🎲 Shuffle All`);
     }
 
     function restartAll() {
       const set = getRandomVideos(players.length);
-      players.forEach((p,i) => { p.stopVideo(); p.loadVideoById(set[i]); p.playVideo(); });
+      players.forEach((p, i) => { p.stopVideo(); p.loadVideoById(set[i]); p.playVideo(); });
       stats.restart++; log(`[${ts()}] 🔁 Restart All`);
     }
 
     // Mute/Unmute ως Enable Sound με τυχαία ένταση
     function toggleMuteAll() {
       if (isMutedAll) {
-        players.forEach((p,i) => {
+        players.forEach((p, i) => {
           p.unMute();
           const v = rndInt(UNMUTE_VOL_MIN, UNMUTE_VOL_MAX); // 10–30%
           p.setVolume(v);
           log(`[${ts()}] 🔊 Enable Sound + Unmute: Player${i+1} -> ${v}%`);
         });
       } else {
-        players.forEach((p,i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i+1}`); });
+        players.forEach((p, i) => { p.mute(); log(`[${ts()}] 🔇 Mute: Player${i+1}`); });
       }
       isMutedAll = !isMutedAll;
     }
 
     function randomizeVolumeAll() {
-      players.forEach((p,i) => { const v = rndInt(0, 100); p.setVolume(v); });
+      players.forEach((p, i) => { const v = rndInt(0, 100); p.setVolume(v); });
       stats.volumeChanges++; log(`[${ts()}] 🔊 Randomize Volume All`);
     }
 
     function normalizeVolumeAll() {
-      players.forEach((p,i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); });
+      players.forEach((p, i) => { p.setVolume(NORMALIZE_VOLUME_TARGET); });
       stats.volumeChanges++; log(`[${ts()}] 🎚 Normalize Volume All`);
     }
 
