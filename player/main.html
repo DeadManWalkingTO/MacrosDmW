@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Auto YouTube Multi Viewer</title>
+  <title>Auto YouTube Multi Viewer Low Quality</title>
   <style>
     .grid {
       display: grid;
@@ -53,6 +53,7 @@
     function onPlayerReady(event) {
       event.target.mute();
       event.target.playVideo();
+      event.target.setPlaybackQuality('small'); // χαμηλή ανάλυση στην αρχή
       scheduleNext(event.target);
     }
 
@@ -62,7 +63,8 @@
         player.loadVideoById(newId);
         player.mute();
         player.playVideo();
-        scheduleNext(player); // συνεχίζει τον κύκλο
+        player.setPlaybackQuality('small'); // χαμηλή ανάλυση σε κάθε νέο βίντεο
+        scheduleNext(player);
       }, 600000); // 10 λεπτά
     }
   </script>
