@@ -1,9 +1,9 @@
 // --- Versions
-const JS_VERSION = "v1.3.6";
+const JS_VERSION = "v1.3.8";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
-// --- Behavior toggle
-const USE_HUMAN_BEHAVIOR_EXTENDED = true; // true = HumanBehaviorExtended.js, false = RandomBehavior
+// --- Behavior toggle (use HumanBehaviorPro.js if available)
+const USE_HUMAN_BEHAVIOR_PRO = true; // true = HumanBehaviorPro.js, false = RandomBehavior
 
 // --- State
 let players = [];
@@ -143,6 +143,7 @@ function clearPlayerTimers(i) {
   }
 }
 
+// --- Ready / State handlers
 function onPlayerReady(e, i) {
   const p = e.target;
   p.mute();
@@ -154,8 +155,8 @@ function onPlayerReady(e, i) {
     p.setPlaybackQuality('small');
     logPlayer(i, `▶ Start after ${Math.round(startDelay/1000)}s, seek=${seek}s`, p.getVideoData().video_id);
 
-    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
-      scheduleHumanBehaviorExtended(p, i);
+    if (USE_HUMAN_BEHAVIOR_PRO && typeof scheduleHumanBehaviorPro === "function") {
+      scheduleHumanBehaviorPro(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -172,8 +173,8 @@ function onPlayerStateChange(e, i) {
     stats.autoNext++;
     logPlayer(i, "⏭ AutoNext", newId);
 
-    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
-      scheduleHumanBehaviorExtended(p, i);
+    if (USE_HUMAN_BEHAVIOR_PRO && typeof scheduleHumanBehaviorPro === "function") {
+      scheduleHumanBehaviorPro(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -181,7 +182,7 @@ function onPlayerStateChange(e, i) {
   }
 }
 
-// --- Random behaviors (fallback)
+// --- Random behaviors (fallback) ---
 function scheduleRandomPauses(p, i) {
   playerTimers[i] = playerTimers[i] || [];
 
@@ -219,12 +220,12 @@ function scheduleMidSeek(p, i) {
     const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
     p.seekTo(seek, true);
     logPlayer(i, `⤴ Mid-seek to ${seek}s`, p.getVideoData().video_id);
-    scheduleMidSeek(p, i); // επαναδρομή με νέο interval
+    scheduleMidSeek(p, i); // επαναδρομή
   }, interval);
   playerTimers[i].push(t);
 }
 
-// --- Controls
+// --- Controls ---
 function playAll() {
   players.forEach((p) => p.playVideo());
   log(`[${ts()}] ▶ Play All`);
@@ -249,8 +250,8 @@ function nextAll() {
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
 
-    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
-      scheduleHumanBehaviorExtended(p, i);
+    if (USE_HUMAN_BEHAVIOR_PRO && typeof scheduleHumanBehaviorPro === "function") {
+      scheduleHumanBehaviorPro(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -268,8 +269,8 @@ function shuffleAll() {
     p.playVideo();
     logPlayer(i, "🎲 Shuffle", id);
 
-    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
-      scheduleHumanBehaviorExtended(p, i);
+    if (USE_HUMAN_BEHAVIOR_PRO && typeof scheduleHumanBehaviorPro === "function") {
+      scheduleHumanBehaviorPro(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -288,8 +289,8 @@ function restartAll() {
     p.playVideo();
     logPlayer(i, "🔁 Restart", id);
 
-    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
-      scheduleHumanBehaviorExtended(p, i);
+    if (USE_HUMAN_BEHAVIOR_PRO && typeof scheduleHumanBehaviorPro === "function") {
+      scheduleHumanBehaviorPro(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
