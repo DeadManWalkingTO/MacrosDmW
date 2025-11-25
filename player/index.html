@@ -1,109 +1,61 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8">
-  <title>Multi-Player Viewer</title>
+  <meta charset="utf-8" />
+  <title>Main Active Desktop Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Έκδοση HTML -->
+  <meta name="html-version" content="v1.2.1" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-    h3 {
-      margin-top: 20px;
-    }
-    #remotePanel, #realisticPanel, #programPanel {
-      background: #fff;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .remote-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      max-width: 300px;
-      margin: auto;
-    }
-    .remote-grid button {
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #log {
-      background: #222;
-      color: #eee;
-      padding: 10px;
-      height: 200px;
-      overflow-y: scroll;
-      font-size: 12px;
-    }
-    #players {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    iframe {
-      margin: 10px;
-    }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#eee; }
+    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; border-bottom:1px solid #333; }
+    .controls h1 { margin:0 0 8px; font-size:20px; }
+    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#2b2b2b; border-color:#666; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:10px; height:60vh; }
+    iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
+    @media (max-width:768px){ .grid{grid-template-columns:repeat(2,1fr);height:auto;} iframe{height:220px;} }
+    .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
+    .stats { background:#222; padding:8px; font-size:12px; border-top:1px solid #333; }
+    body.light { background:#f9f9f9; color:#222; }
+    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
+    body.light button { background:#fff; color:#222; border-color:#ccc; }
+    body.light button:hover { background:#ddd; border-color:#999; }
+    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
+    body.light .stats { background:#ddd; border-top-color:#ccc; }
   </style>
 </head>
 <body>
-
-  <h2>🎬 Multi-Player Viewer</h2>
-
-  <!-- Realistic Mode Toggle -->
-  <div id="realisticPanel">
-    <h3>🎬 Realistic Mode</h3>
-    <button onclick="toggleRealisticMode()">Toggle Realistic Mode</button>
-  </div>
-
-  <!-- Program Slots -->
-  <div id="programPanel">
-    <h3>📺 Program Slots</h3>
-    <label>Morning Start: <input type="number" id="morningStart" value="8" min="0" max="23"></label>
-    <label>Morning End: <input type="number" id="morningEnd" value="11" min="0" max="23"></label>
-    <br>
-    <label>Evening Start: <input type="number" id="eveningStart" value="20" min="0" max="23"></label>
-    <label>Evening End: <input type="number" id="eveningEnd" value="23" min="0" max="23"></label>
-    <br>
-    <button onclick="updateProgramSlots()">Update Slots</button>
-  </div>
-
-  <!-- Remote Control Panel -->
-  <div id="remotePanel">
-    <h3>📺 Remote Control</h3>
-    <div class="remote-grid">
-      <button onclick="staggeredAction(players, p => p.playVideo())">▶ Play All</button>
-      <button onclick="staggeredAction(players, p => p.pauseVideo())">⏸ Pause All</button>
-      <button onclick="staggeredAction(players, p => p.stopVideo())">⏹ Stop All</button>
-      
-      <button onclick="staggeredAction(players, p => p.nextVideo())">⏭ Next</button>
-      <button onclick="shuffleAll()">🔀 Shuffle</button>
-      <button onclick="restartAll()">🔄 Restart</button>
-      
-      <button onclick="muteAll()">🔇 Mute</button>
-      <button onclick="unmuteAll()">🔊 Unmute</button>
-      <button onclick="normalizeVolume()">🎚 Normalize</button>
-      
-      <button onclick="toggleRealisticMode()">🎬 Realistic Mode</button>
-      <button onclick="toggleChannelSurfing()">📡 Channel Surfing</button>
-      <button onclick="togglePiP()">🖼 PiP Overlay</button>
+  <div class="controls">
+    <h1>Main Active Desktop Page</h1>
+    <div class="row">
+      <button onclick="playAll()">▶ Play All</button>
+      <button onclick="pauseAll()">⏸ Pause All</button>
+      <button onclick="stopAll()">⏹ Stop All</button>
+      <button onclick="nextAll()">⏭ Next All</button>
+      <button onclick="shuffleAll()">🎲 Shuffle All</button>
+      <button onclick="restartAll()">🔁 Restart All</button>
+      <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
+      <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
+      <button onclick="normalizeVolumeAll()">🎚 Volume Normalize All</button>
+      <button onclick="toggleTheme()">🌓 Dark/Light Mode</button>
+      <button onclick="clearLogs()">🧹 Clear Logs</button>
+      <button onclick="reloadList()">🔄 Reload List</button>
     </div>
   </div>
 
-  <!-- Players (θα δημιουργηθούν δυναμικά από το JS) -->
-  <div id="players"></div>
+  <div class="grid">
+    <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
+    <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
+  </div>
 
-  <!-- Activity Log -->
-  <h3>📜 Activity Log</h3>
-  <div id="log"></div>
+  <div class="activity" id="activityPanel"></div>
+  <div class="stats" id="statsPanel">📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0</div>
 
-  <!-- Scripts -->
+  <!-- YouTube API -->
   <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- Συνδέουμε το εξωτερικό αρχείο με τις συναρτήσεις -->
   <script src="functions.js"></script>
 </body>
 </html>
