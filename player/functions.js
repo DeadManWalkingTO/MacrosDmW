@@ -35,7 +35,7 @@ loadVideoList()
     if (typeof YT !== "undefined" && YT.Player) {
       initPlayers(getRandomVideos(8));
     }
-    updateStats();
+    updateStats(); // ενημέρωση stats στην εκκίνηση
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
