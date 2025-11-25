@@ -23,16 +23,18 @@
 Η εφαρμογή φορτώνει τη λίστα βίντεο με τριπλό fallback:
 
 ```mermaid
+
 flowchart TD
     A[App starts] --> B{Local list.txt exists?}
     B -- Yes --> C[Load from Local list.txt]
     B -- No --> D{Web list available?}
-    D -- Yes --> E[Load from Web list.txt (GitHub)]
-    D -- No --> F[Use Internal list (embedded)]
+    D -- Yes --> E[Load from Web list.txt - GitHub]
+    D -- No --> F[Use Internal list - embedded]
     C --> G[videoList ready]
     E --> G[videoList ready]
     F --> G[videoList ready]
     G --> H[Init Players]
+
 ```
 - **Local**: Αν υπάρχει `list.txt` στο ίδιο directory, φορτώνεται αυτό.  
 - **Web**: Αν δεν υπάρχει τοπικό, γίνεται προσπάθεια φόρτωσης από GitHub.  
