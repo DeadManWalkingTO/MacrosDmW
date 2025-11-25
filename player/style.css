@@ -46,7 +46,8 @@ body.light {
 
 #players div {
   background: #000;
-  height: 200px; /* μπορείς να το προσαρμόσεις */
+  aspect-ratio: 16 / 9; /* responsive αναλογία */
+  width: 100%;
 }
 
 /* Responsive για tablets */
