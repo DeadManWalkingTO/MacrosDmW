@@ -46,10 +46,10 @@ h1 {
   padding: 10px;
 }
 
-.player-container iframe {
+.player-container div {
   width: 100%;
-  height: 200px; /* σταθερό ύψος όπως στην παλιά έκδοση */
-  border: none;
+  height: 200px; /* σταθερό ύψος */
+  background: #000;
 }
 
 /* Responsive για tablets */
