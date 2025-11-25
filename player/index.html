@@ -1,63 +1,66 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <title>Main Active Desktop Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Έκδοση HTML -->
-  <meta name="html-version" content="v1.2.2" />
+  <meta charset="UTF-8">
+  <meta name="html-version" content="v2.0.0">
+  <title>YouTube Multi-Viewer</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#eee; }
-    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; border-bottom:1px solid #333; }
-    .controls h1 { margin:0 0 8px; font-size:20px; }
-    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-    button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
-    button:hover { background:#2b2b2b; border-color:#666; }
-    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:10px; height:60vh; }
-    iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
-    @media (max-width:768px){ .grid{grid-template-columns:repeat(2,1fr);height:auto;} iframe{height:220px;} }
-    .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
-    .stats { background:#222; padding:8px; font-size:12px; border-top:1px solid #333; }
-    body.light { background:#f9f9f9; color:#222; }
-    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
-    body.light button { background:#fff; color:#222; border-color:#ccc; }
-    body.light button:hover { background:#ddd; border-color:#999; }
-    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
-    body.light .stats { background:#ddd; border-top-color:#ccc; }
+    body { font-family: Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; }
+    body.light { background: #f9f9f9; color: #333; }
+    h1 { text-align: center; padding: 10px; }
+    #statsPanel, #activityPanel { font-family: monospace; padding: 10px; }
+    #activityPanel { max-height: 200px; overflow-y: auto; border-top: 1px solid #444; border-bottom: 1px solid #444; }
+    .player-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px; }
+    iframe { width: 100%; height: 200px; border: none; }
+    .controls { text-align: center; padding: 10px; }
+    .controls button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
   </style>
 </head>
 <body>
+  <h1>YouTube Multi-Viewer</h1>
+
+  <!-- Panels -->
+  <div id="statsPanel">📊 Stats —</div>
+  <div id="activityPanel"></div>
+
+  <!-- Players -->
+  <div class="player-container">
+    <div id="player1"></div>
+    <div id="player2"></div>
+    <div id="player3"></div>
+    <div id="player4"></div>
+    <div id="player5"></div>
+    <div id="player6"></div>
+    <div id="player7"></div>
+    <div id="player8"></div>
+  </div>
+
+  <!-- Controls -->
   <div class="controls">
-    <h1>Main Active Desktop Page</h1>
-    <div class="row">
-      <button onclick="playAll()">▶ Play All</button>
-      <button onclick="pauseAll()">⏸ Pause All</button>
-      <button onclick="stopAll()">⏹ Stop All</button>
-      <button onclick="nextAll()">⏭ Next All</button>
-      <button onclick="shuffleAll()">🎲 Shuffle All</button>
-      <button onclick="restartAll()">🔁 Restart All</button>
-      <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
-      <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
-      <button onclick="normalizeVolumeAll()">🎚 Volume Normalize All</button>
-      <button onclick="toggleTheme()">🌓 Dark/Light Mode</button>
-      <button onclick="clearLogs()">🧹 Clear Logs</button>
-      <button onclick="reloadList()">🔄 Reload List</button>
-    </div>
+    <button onclick="playAll()">▶ Play All</button>
+    <button onclick="pauseAll()">⏸ Pause All</button>
+    <button onclick="stopAll()">⏹ Stop All</button>
+    <button onclick="nextAll()">⏭ Next All</button>
+    <button onclick="shuffleAll()">🎲 Shuffle All</button>
+    <button onclick="restartAll()">🔁 Restart All</button>
+    <button onclick="toggleMuteAll()">🔊/🔇 Toggle Mute</button>
+    <button onclick="randomizeVolumeAll()">🔊 Randomize Volume</button>
+    <button onclick="normalizeVolumeAll()">🎚 Normalize Volume</button>
+    <button onclick="toggleTheme()">🌓 Theme</button>
+    <button onclick="clearLogs()">🧹 Clear Logs</button>
+    <button onclick="reloadList()">🔄 Reload List</button>
   </div>
-
-  <div class="grid">
-    <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
-    <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
-  </div>
-
-  <div class="activity" id="activityPanel"></div>
-  <div class="stats" id="statsPanel">📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0</div>
 
   <!-- YouTube API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <!-- Συνδέουμε το εξωτερικό αρχείο με τις συναρτήσεις -->
+
+  <!-- Modular scripts -->
+  <script src="utils.js"></script>
+  <script src="controls.js"></script>
+  <script src="listLoader.js"></script>
+  <script src="playerHandlers.js"></script>
+  <script src="behaviors.js"></script>
+  <script src="HumanBehaviorPro.js"></script>
   <script src="functions.js"></script>
-  <!-- Module για πιο φυσική συμπεριφορά -->
-  <script src="HumanBehavior.js"></script>
 </body>
 </html>
