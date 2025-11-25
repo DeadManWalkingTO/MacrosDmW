@@ -3,12 +3,12 @@
 
 // --- Versions
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
-const JS_VERSION = "v2.1.1"; // Ορισμός έκδοσης JS μόνο εδώ
+const JS_VERSION = "v2.1.1"; // χειροκίνητη έκδοση JS ΜΟΝΟ εδώ
 
 // --- Log settings
 const MAX_LOGS = 50; // μέγιστος αριθμός γραμμών στο Activity Log
 
-// Formatter: πάντα πρόθεμα "v"
+// --- Helpers
 function formatVersion(v) {
   if (!v) return "vunknown";
   return v.startsWith("v") ? v : `v${v}`;
@@ -37,6 +37,8 @@ loadVideoList()
     log(`[${ts()}] 🚀 Project start — HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`);
     if (typeof YT !== "undefined" && YT.Player) {
       initPlayers(getRandomVideos(8));
+    } else {
+      log(`[${ts()}] ⚠️ YT API not ready yet`);
     }
     updateStats(); // ενημέρωση stats στην εκκίνηση
   })
@@ -48,18 +50,24 @@ function getRandomVideos(count) {
   return shuffled.slice(0, count);
 }
 
-// --- Player initialization
+// --- Player initialization (iframe-based, Option A)
 function initPlayers(videoIds) {
-  const container = document.getElementById("players");
-  container.innerHTML = "";
+  const container = document.querySelector(".player-container");
+  if (!container) {
+    log(`[${ts()}] ❌ Player container not found (.player-container)`);
+    return;
+  }
+
   players = [];
 
   videoIds.forEach((id, idx) => {
-    const div = document.createElement("div");
-    div.id = `player${idx + 1}`;
-    container.appendChild(div);
+    const iframe = document.getElementById(`player${idx + 1}`);
+    if (!iframe) {
+      log(`[${ts()}] ❌ Missing iframe #player${idx + 1}`);
+      return;
+    }
 
-    const player = new YT.Player(div.id, {
+    const player = new YT.Player(iframe, {
       videoId: id,
       events: {
         onReady: () => log(`[${ts()}] ✅ Player ${idx + 1} ready — id=${id}`),
@@ -70,7 +78,11 @@ function initPlayers(videoIds) {
     players.push(player);
   });
 
-  log(`[${ts()}] ✅ Players initialized (${players.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
+  log(
+    `[${ts()}] ✅ Players initialized (${players.length}/${
+      videoIds.length
+    }) — Source: ${listSource} (Total IDs = ${videoList.length})`
+  );
 }
 
 // --- Player state handler
@@ -85,9 +97,14 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
     stats.autoNext++;
     updateStats();
     log(`[${ts()}] ⏭ Player ${playerIndex} ended — id=${videoId}`);
+
     const nextId = getRandomVideos(1)[0];
-    event.target.loadVideoById(nextId);
-    log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
+    if (nextId) {
+      event.target.loadVideoById(nextId);
+      log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
+    } else {
+      log(`[${ts()}] ⚠️ No next video available`);
+    }
   }
 }
 
