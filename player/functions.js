@@ -1,57 +1,108 @@
-<!DOCTYPE html>
-<html lang="el">
-<head>
-  <meta charset="UTF-8">
-  <meta name="html-version" content="v2.0.0">
-  <title>Active Desktop</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// functions.js
+// Κεντρικό orchestrator του project
 
-  <!-- Κουμπιά πρώτα (στη μορφή που είχαν) -->
-  <div id="controls">
-    <button onclick="playAll()">▶ Play All</button>
-    <button onclick="pauseAll()">⏸ Pause All</button>
-    <button onclick="restartAll()">🔄 Restart</button>
-    <button onclick="shuffleAll()">🔀 Shuffle</button>
-    <button onclick="muteAll()">🔇 Mute/Unmute</button>
-    <button onclick="reloadList()">📂 Reload List</button>
-    <button onclick="toggleTheme()">🌓 Theme</button>
-    <button onclick="clearLogs()">🧹 Clear Logs</button>
-  </div>
+// --- Versions (HTML από meta, JS από global που ήδη ορίζεται αλλού)
+const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
-  <!-- Players (2 γραμμές × 4, responsive 2×2/1×8 από CSS) -->
-  <div id="players">
-    <div id="player1"></div>
-    <div id="player2"></div>
-    <div id="player3"></div>
-    <div id="player4"></div>
-    <div id="player5"></div>
-    <div id="player6"></div>
-    <div id="player7"></div>
-    <div id="player8"></div>
-  </div>
+// Μορφοποίηση: πάντα πρόθεμα "v"
+function formatVersion(v) {
+  if (!v) return "vunknown";
+  return v.startsWith("v") ? v : `v${v}`;
+}
 
-  <!-- Log panel (στη μορφή που είχε) -->
-  <div id="activityPanel">
-    <h2>Activity Log</h2>
-    <pre id="log"></pre>
-  </div>
+// --- State
+let players = [];
+let playerTimers = {};
+let videoList = [];
+let isMutedAll = true;
+let listSource = "Internal"; // Local | Web | Internal
 
-  <!-- Stats panel (τελευταίο, στη μορφή που είχε) -->
-  <div id="statsPanel">
-    <h2>Stats</h2>
-    <ul id="stats"></ul>
-  </div>
+const stats = {
+  autoNext: 0,
+  manualNext: 0,
+  shuffle: 0,
+  restart: 0,
+  pauses: 0,
+  volumeChanges: 0
+};
 
-  <!-- Scripts -->
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="utils.js"></script>
-  <script src="controls.js"></script>
-  <script src="listLoader.js"></script>
-  <script src="playerHandlers.js"></script>
-  <script src="behaviors.js"></script>
-  <script src="HumanBehaviorPro.js"></script>
-  <script src="functions.js"></script>
-</body>
-</html>
+// --- Log settings
+const MAX_LOGS = 50;
+
+// --- Kick off project
+loadVideoList()
+  .then(list => {
+    videoList = list;
+    log(`[${ts()}] 🚀 Project start — HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`);
+    if (typeof YT !== "undefined" && YT.Player) {
+      initPlayers(getRandomVideos(8));
+    }
+    // Ενημέρωσε τα stats με την έκδοση στην ίδια λίστα
+    updateStats();
+  })
+  .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
+
+// --- Utility
+function getRandomVideos(count) {
+  const shuffled = [...videoList].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// --- Player initialization
+function initPlayers(videoIds) {
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  players = [];
+
+  videoIds.forEach((id, idx) => {
+    const div = document.createElement("div");
+    div.id = `player${idx + 1}`;
+    container.appendChild(div);
+
+    const player = new YT.Player(div.id, {
+      videoId: id,
+      events: {
+        onReady: () => log(`[${ts()}] ✅ Player ${idx + 1} ready — id=${id}`),
+        onStateChange: e => handlePlayerStateChange(e, idx + 1, id)
+      }
+    });
+
+    players.push(player);
+  });
+
+  log(`[${ts()}] ✅ Players initialized (${players.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
+}
+
+// --- Player state handler
+function handlePlayerStateChange(event, playerIndex, videoId) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    log(`[${ts()}] ▶ Player ${playerIndex} started — id=${videoId}`);
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    stats.pauses++;
+    updateStats();
+    log(`[${ts()}] ⏸ Player ${playerIndex} paused — id=${videoId}`);
+  } else if (event.data === YT.PlayerState.ENDED) {
+    stats.autoNext++;
+    updateStats();
+    log(`[${ts()}] ⏭ Player ${playerIndex} ended — id=${videoId}`);
+    const nextId = getRandomVideos(1)[0];
+    event.target.loadVideoById(nextId);
+    log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
+  }
+}
+
+// --- Stats updater (έκδοση στην ίδια λίστα/γραμμή)
+function updateStats() {
+  const statsList = document.getElementById("stats");
+  if (!statsList) return;
+
+  statsList.innerHTML = `
+    <li>AutoNext: ${stats.autoNext}</li>
+    <li>ManualNext: ${stats.manualNext}</li>
+    <li>Shuffle: ${stats.shuffle}</li>
+    <li>Restart: ${stats.restart}</li>
+    <li>Pauses: ${stats.pauses}</li>
+    <li>VolumeChanges: ${stats.volumeChanges}</li>
+    <li>— HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}</li>
+  `;
+}
