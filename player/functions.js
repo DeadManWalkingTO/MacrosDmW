@@ -5,6 +5,9 @@
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 const JS_VERSION = "v2.1.1"; // Ορισμός έκδοσης JS μόνο εδώ
 
+// --- Log settings
+const MAX_LOGS = 50; // μέγιστος αριθμός γραμμών στο Activity Log
+
 // Formatter: πάντα πρόθεμα "v"
 function formatVersion(v) {
   if (!v) return "vunknown";
