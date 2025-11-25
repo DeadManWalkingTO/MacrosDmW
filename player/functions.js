@@ -1,7 +1,7 @@
 // functions.js
 
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
-const JS_VERSION = "v2.1.1";
+const JS_VERSION = "v2.2.0";
 const MAX_LOGS = 50;
 
 function formatVersion(v) {
@@ -23,6 +23,7 @@ const stats = {
   volumeChanges: 0
 };
 
+// --- Εκκίνηση project
 loadVideoList()
   .then(list => {
     videoList = list;
@@ -73,7 +74,7 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
   }
 }
 
-// Stats σε μία γραμμή (χωρίς κενή γραμμή στην αρχή)
+// --- Stats updater (μία γραμμή, χωρίς κενή γραμμή στην αρχή)
 function updateStats() {
   const statsDiv = document.getElementById("stats");
   if (!statsDiv) return;
