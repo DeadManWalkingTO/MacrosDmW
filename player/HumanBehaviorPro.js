@@ -1,87 +1,70 @@
-// HumanBehaviorPro.js
-// Συνδυασμός όλων των προτάσεων για πιο φυσική συμπεριφορά
+/* HumanBehaviorPro.js v1.1
+ * Προηγμένη προσομοίωση συμπεριφοράς (extended pauses, skips, drift, quality changes, tab switching)
+ */
 
-function scheduleHumanBehaviorPro(p, i) {
-  playerTimers[i] = playerTimers[i] || [];
+import { logInfo, getRandomInt } from "./utils.js";
 
-  // --- Pause με πιθανότητα να μην ξαναπαίξει
-  const pauseDelay = rndDelayMs(60, 600); // 1–10 λεπτά
-  const pauseTimer = setTimeout(() => {
-    const pauseLen = rndInt(5000, 20000); // 5–20s
-    p.pauseVideo(); stats.pauses++;
-    logPlayer(i, `⏸ Pause ${Math.round(pauseLen/1000)}s`, p.getVideoData().video_id);
+// Εφαρμογή advanced behaviors σε έναν player
+function applyHumanBehaviorPro(player) {
+  if (!player || !player.getPlayerState) return;
 
-    if (Math.random() < 0.7) { // 70% πιθανότητα να ξαναπαίξει
-      const resumeTimer = setTimeout(() => {
-        p.playVideo();
-        logPlayer(i, "▶ Resume", p.getVideoData().video_id);
-      }, pauseLen);
-      playerTimers[i].push(resumeTimer);
+  // Extended pause: τυχαία παύση 30–90 δευτερόλεπτα
+  let extendedPauseDelay = getRandomInt(30, 90) * 1000;
+  setTimeout(() => {
+    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+      logInfo("HumanBehaviorPro: extended pause applied");
     }
-    scheduleHumanBehaviorPro(p, i);
-  }, pauseDelay);
-  playerTimers[i].push(pauseTimer);
+  }, extendedPauseDelay);
 
-  // --- Skip forward/backward με πιθανότητες
-  const seekDelay = rndDelayMs(180, 900); // 3–15 λεπτά
-  const seekTimer = setTimeout(() => {
-    const chance = Math.random();
-    let offset = 0;
-    if (chance < 0.2) offset = -rndInt(5, 10); // rewind
-    else if (chance < 0.6) offset = rndInt(10, 30); // skip forward
-    else if (chance < 0.7) { // stop
-      p.stopVideo();
-      logPlayer(i, "⏹ User stopped", p.getVideoData().video_id);
-      return;
+  // Skip forward/backward: τυχαίο seek ±10–30 δευτερόλεπτα
+  let skipDelay = getRandomInt(60, 120) * 1000;
+  setTimeout(() => {
+    if (player.getDuration && player.getPlayerState() === YT.PlayerState.PLAYING) {
+      let currentTime = player.getCurrentTime();
+      let skipOffset = getRandomInt(-30, 30);
+      let newTime = Math.max(0, Math.min(player.getDuration(), currentTime + skipOffset));
+      player.seekTo(newTime, true);
+      logInfo("HumanBehaviorPro: skip applied, offset " + skipOffset + "s");
     }
-    const newPos = Math.max(0, p.getCurrentTime() + offset);
-    p.seekTo(newPos, true);
-    logPlayer(i, `⤴ Skip ${offset}s`, p.getVideoData().video_id);
-    scheduleHumanBehaviorPro(p, i);
-  }, seekDelay);
-  playerTimers[i].push(seekTimer);
+  }, skipDelay);
 
-  // --- Volume drift
-  if (!isMutedAll && Math.random() < 0.5) {
-    const volDelay = rndDelayMs(120, 480); // 2–8 λεπτά
-    const volTimer = setTimeout(() => {
-      const currentVol = p.getVolume();
-      const drift = rndInt(-3, 3);
-      const newVol = Math.min(100, Math.max(0, currentVol + drift));
-      p.setVolume(newVol);
-      stats.volumeChanges++;
-      logPlayer(i, `🔊 Volume drift -> ${newVol}%`, p.getVideoData().video_id);
-      scheduleHumanBehaviorPro(p, i);
-    }, volDelay);
-    playerTimers[i].push(volTimer);
-  }
+  // Drift: μικρή τυχαία μετατόπιση χρόνου ±2–5 δευτερόλεπτα
+  let driftDelay = getRandomInt(90, 150) * 1000;
+  setTimeout(() => {
+    if (player.getDuration && player.getPlayerState() === YT.PlayerState.PLAYING) {
+      let currentTime = player.getCurrentTime();
+      let driftOffset = getRandomInt(-5, 5);
+      let newTime = Math.max(0, Math.min(player.getDuration(), currentTime + driftOffset));
+      player.seekTo(newTime, true);
+      logInfo("HumanBehaviorPro: drift applied, offset " + driftOffset + "s");
+    }
+  }, driftDelay);
 
-  // --- Quality change
-  if (Math.random() < 0.2) {
-    const qualityDelay = rndDelayMs(300, 900); // 5–15 λεπτά
-    const qualityTimer = setTimeout(() => {
-      const qualities = ['small','medium','hd720'];
-      const q = qualities[rndInt(0, qualities.length-1)];
-      p.setPlaybackQuality(q);
-      logPlayer(i, `📺 Quality change -> ${q}`, p.getVideoData().video_id);
-      scheduleHumanBehaviorPro(p, i);
-    }, qualityDelay);
-    playerTimers[i].push(qualityTimer);
-  }
+  // Quality change: τυχαία αλλαγή ποιότητας (αν υποστηρίζεται)
+  let qualityOptions = ["small", "medium", "large", "hd720", "hd1080"];
+  let qualityDelay = getRandomInt(120, 180) * 1000;
+  setTimeout(() => {
+    if (player.setPlaybackQuality) {
+      let randomQuality = qualityOptions[getRandomInt(0, qualityOptions.length - 1)];
+      player.setPlaybackQuality(randomQuality);
+      logInfo("HumanBehaviorPro: quality changed to " + randomQuality);
+    }
+  }, qualityDelay);
 
-  // --- Tab switching simulation
-  if (Math.random() < 0.3) { // 30% πιθανότητα
-    const tabDelay = rndDelayMs(300, 900); // 5–15 λεπτά
-    const tabTimer = setTimeout(() => {
-      p.pauseVideo(); stats.pauses++;
-      logPlayer(i, "⏸ Tab switch pause", p.getVideoData().video_id);
-      const otherIndex = rndInt(0, players.length-1);
-      if (players[otherIndex] && otherIndex !== i) {
-        players[otherIndex].playVideo();
-        logPlayer(otherIndex, "▶ Tab switch resume", players[otherIndex].getVideoData().video_id);
-      }
-      scheduleHumanBehaviorPro(p, i);
-    }, tabDelay);
-    playerTimers[i].push(tabTimer);
-  }
+  // Tab switching simulation: pause/resume μετά από 2–5 λεπτά
+  let tabSwitchDelay = getRandomInt(120, 300) * 1000;
+  setTimeout(() => {
+    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+      logInfo("HumanBehaviorPro: simulated tab switch (pause)");
+      setTimeout(() => {
+        player.playVideo();
+        logInfo("HumanBehaviorPro: simulated tab switch (resume)");
+      }, getRandomInt(10, 30) * 1000);
+    }
+  }, tabSwitchDelay);
 }
+
+// Export
+export { applyHumanBehaviorPro };
