@@ -1,4 +1,3 @@
-/* Γενικές ρυθμίσεις */
 body {
   font-family: Arial, sans-serif;
   background: #222;
@@ -12,12 +11,6 @@ body.light {
   color: #333;
 }
 
-h1 {
-  text-align: center;
-  padding: 10px;
-}
-
-/* Controls */
 .controls {
   text-align: center;
   padding: 10px;
@@ -38,7 +31,6 @@ h1 {
   background: #666;
 }
 
-/* Players σε grid 4x2 */
 .player-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -52,21 +44,18 @@ h1 {
   background: #000;
 }
 
-/* Responsive για tablets */
 @media (max-width: 768px) {
   .player-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Responsive για κινητά */
 @media (max-width: 480px) {
   .player-container {
     grid-template-columns: 1fr;
   }
 }
 
-/* Activity Log */
 #activityPanel {
   font-family: monospace;
   padding: 10px;
@@ -78,7 +67,6 @@ h1 {
   overflow-y: auto;
 }
 
-/* Stats Panel */
 #statsPanel {
   font-family: monospace;
   padding: 10px;
