@@ -1,9 +1,10 @@
 // --- Versions
-const JS_VERSION = "v1.3.3";
+const JS_VERSION = "v1.3.4";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
 let players = [];
+let playerTimers = {}; // timers ανά player index
 let videoList = [];
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
@@ -26,8 +27,8 @@ const UNMUTE_VOL_MIN = 10, UNMUTE_VOL_MAX = 30;
 const NORMALIZE_VOLUME_TARGET = 20;
 const PAUSE_SMALL_MS = [2000, 5000];
 const PAUSE_LARGE_MS = [15000, 30000];
-const MID_SEEK_INTERVAL_MIN = [5, 9];
-const MID_SEEK_WINDOW_S = [30, 120];
+const MID_SEEK_INTERVAL_MIN = [5, 9]; // minutes
+const MID_SEEK_WINDOW_S = [30, 120];  // seconds
 
 // --- Utils
 const ts = () => new Date().toLocaleTimeString();
@@ -63,19 +64,19 @@ function getRandomVideos(n) { return [...videoList].sort(() => Math.random() - 0
 // --- Load list with triple fallback
 function loadVideoList() {
   return fetch("list.txt")
-    .then(r => r.ok ? r.text() : Promise.reject("local-not-found"))
+    .then(r => r.ok ? r.text() : Promise.reject(new Error("local-not-found")))
     .then(text => {
       const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
       if (arr.length) { listSource = "Local"; return arr; }
-      throw "local-empty";
+      throw new Error("local-empty");
     })
     .catch(() => {
       return fetch("https://deadmanwalkingto.github.io/MacrosDmW/player/list.txt")
-        .then(r => r.ok ? r.text() : Promise.reject("web-not-found"))
+        .then(r => r.ok ? r.text() : Promise.reject(new Error("web-not-found")))
         .then(text => {
           const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
           if (arr.length) { listSource = "Web"; return arr; }
-          throw "web-empty";
+          throw new Error("web-empty");
         })
         .catch(() => { listSource = "Internal"; return internalList; });
     });
@@ -90,7 +91,7 @@ loadVideoList()
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
-// --- Reload list (manual, δεν επηρεάζει τους ενεργούς players)
+// --- Reload list
 function reloadList() {
   loadVideoList().then(list => {
     videoList = list;
@@ -111,14 +112,32 @@ function onYouTubeIframeAPIReady() {
   }
 }
 
+// --- Init players με fallback IDs + playerVars
 function initPlayers(videoIds) {
+  const totalSlots = 8;
+  const needed = totalSlots - videoIds.length;
+  if (needed > 0) {
+    const extra = internalList.slice(0, needed);
+    videoIds = [...videoIds, ...extra];
+  }
+
   videoIds.forEach((id, i) => {
     players[i] = new YT.Player(`player${i+1}`, {
       videoId: id,
+      playerVars: { rel:0, modestbranding:1 },
       events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
     });
   });
+
   log(`[${ts()}] ✅ Players initialized (${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
+}
+
+// --- Clear timers για player
+function clearPlayerTimers(i) {
+  if (playerTimers[i]) {
+    playerTimers[i].forEach(t => clearTimeout(t));
+    playerTimers[i] = [];
+  }
 }
 
 function onPlayerReady(e, i) {
@@ -138,8 +157,9 @@ function onPlayerReady(e, i) {
 
 function onPlayerStateChange(e, i) {
   if (e.data === YT.PlayerState.ENDED) {
+    clearPlayerTimers(i);
     const p = e.target;
-    const newId = getRandomVideos(1)[0];
+    const newId = getRandomVideos(1)[0] || internalList[rndInt(0, internalList.length - 1)];
     p.loadVideoById(newId);
     stats.autoNext++;
     logPlayer(i, "⏭ AutoNext", newId);
@@ -148,33 +168,47 @@ function onPlayerStateChange(e, i) {
   }
 }
 
-// --- Natural behaviors
+// --- Natural behaviors με timers
 function scheduleRandomPauses(p, i) {
+  playerTimers[i] = playerTimers[i] || [];
+
   const delaySmall = rndDelayMs(30, 120);
-  setTimeout(() => {
+  const t1 = setTimeout(() => {
     const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
     p.pauseVideo(); stats.pauses++;
     logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s`, p.getVideoData().video_id);
-    setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause", p.getVideoData().video_id); }, pauseLen);
+    const resumeSmall = setTimeout(() => {
+      p.playVideo();
+      logPlayer(i, "▶ Resume after small pause", p.getVideoData().video_id);
+    }, pauseLen);
+    playerTimers[i].push(resumeSmall);
   }, delaySmall);
+  playerTimers[i].push(t1);
 
   const delayLarge = rndDelayMs(120, 240);
-  setTimeout(() => {
+  const t2 = setTimeout(() => {
     const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
     p.pauseVideo(); stats.pauses++;
     logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s`, p.getVideoData().video_id);
-    setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause", p.getVideoData().video_id); }, pauseLen);
+    const resumeLarge = setTimeout(() => {
+      p.playVideo();
+      logPlayer(i, "▶ Resume after large pause", p.getVideoData().video_id);
+    }, pauseLen);
+    playerTimers[i].push(resumeLarge);
   }, delayLarge);
+  playerTimers[i].push(t2);
 }
 
 function scheduleMidSeek(p, i) {
+  playerTimers[i] = playerTimers[i] || [];
   const interval = rndInt(MID_SEEK_INTERVAL_MIN[0], MID_SEEK_INTERVAL_MIN[1]) * 60000;
-  setTimeout(() => {
+  const t = setTimeout(() => {
     const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
     p.seekTo(seek, true);
     logPlayer(i, `⤴ Mid-seek to ${seek}s`, p.getVideoData().video_id);
-    scheduleMidSeek(p, i);
+    scheduleMidSeek(p, i); // επαναδρομή με νέο interval
   }, interval);
+  playerTimers[i].push(t);
 }
 
 // --- Controls
@@ -188,15 +222,21 @@ function pauseAll() {
   log(`[${ts()}] ⏸ Pause All`);
 }
 function stopAll() {
-  players.forEach((p) => p.stopVideo());
+  players.forEach((p, i) => {
+    p.stopVideo();
+    clearPlayerTimers(i);
+  });
   log(`[${ts()}] ⏹ Stop All`);
 }
 function nextAll() {
   players.forEach((p, i) => {
-    const newId = getRandomVideos(1)[0];
+    clearPlayerTimers(i);
+    const newId = getRandomVideos(1)[0] || internalList[rndInt(0, internalList.length - 1)];
     p.loadVideoById(newId);
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
+    scheduleRandomPauses(p, i);
+    scheduleMidSeek(p, i);
   });
   stats.manualNext++;
   log(`[${ts()}] ⏭ Next All`);
@@ -204,9 +244,13 @@ function nextAll() {
 function shuffleAll() {
   const sh = getRandomVideos(players.length);
   players.forEach((p, i) => {
-    p.loadVideoById(sh[i]);
+    const id = sh[i] || internalList[rndInt(0, internalList.length - 1)];
+    clearPlayerTimers(i);
+    p.loadVideoById(id);
     p.playVideo();
-    logPlayer(i, "🎲 Shuffle", sh[i]);
+    logPlayer(i, "🎲 Shuffle", id);
+    scheduleRandomPauses(p, i);
+    scheduleMidSeek(p, i);
   });
   stats.shuffle++;
   log(`[${ts()}] 🎲 Shuffle All`);
@@ -214,10 +258,14 @@ function shuffleAll() {
 function restartAll() {
   const set = getRandomVideos(players.length);
   players.forEach((p, i) => {
+    const id = set[i] || internalList[rndInt(0, internalList.length - 1)];
+    clearPlayerTimers(i);
     p.stopVideo();
-    p.loadVideoById(set[i]);
+    p.loadVideoById(id);
     p.playVideo();
-    logPlayer(i, "🔁 Restart", set[i]);
+    logPlayer(i, "🔁 Restart", id);
+    scheduleRandomPauses(p, i);
+    scheduleMidSeek(p, i);
   });
   stats.restart++;
   log(`[${ts()}] 🔁 Restart All`);
