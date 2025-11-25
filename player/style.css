@@ -1,100 +1,83 @@
+/* Βασικές ρυθμίσεις */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #222;
-  color: #eee;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-body.light {
-  background: #f9f9f9;
-  color: #333;
-}
-
-/* Panels να μην ξεπερνούν το πλάτος του browser */
-#activityPanel,
-#statsPanel,
-.controls,
-.player-container {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Controls */
-.controls {
-  text-align: center;
-  padding: 10px;
-}
-
-.controls button {
-  margin: 5px;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  background: #444;
+  background: #111;
   color: #fff;
-  border: none;
-  border-radius: 4px;
+  font-family: Arial, sans-serif;
 }
 
-.controls button:hover {
-  background: #666;
-}
-
-/* Players σε responsive grid */
-.player-container {
+/* Grid για τους players */
+.player-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* desktop: 4 ανά σειρά */
-  gap: 10px;
-  padding: 10px;
+  gap: 8px; /* Κενό ανάμεσα στους players */
   width: 100%;
-  box-sizing: border-box;
+  max-width: 100vw; /* Δεν ξεπερνά το πλάτος του παραθύρου */
+  margin: 0 auto;
+  padding: 0;
 }
 
-.player-container div {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;   /* δυναμικό μέγεθος με σωστή αναλογία video */
-  background: #000;
+/* Desktop: 4×2 */
+@media (min-width: 1025px) {
+  .player-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
+  }
 }
 
 /* Tablet: 2×2 */
-@media (max-width: 768px) {
-  .player-container {
+@media (min-width: 768px) and (max-width: 1024px) {
+  .player-grid {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
   }
 }
 
 /* Mobile: 1×8 */
-@media (max-width: 480px) {
-  .player-container {
+@media (max-width: 767px) {
+  .player-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(8, auto);
   }
 }
 
-/* Activity Log */
-#activityPanel {
-  font-family: monospace;
-  padding: 10px;
-  margin: 10px;
-  background: #1a1a1a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  max-height: 200px;
-  overflow-y: auto;
+/* Player container */
+.player-container {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Σταθερή αναλογία βίντεο */
+  background: #000; /* Placeholder */
+  position: relative;
 }
 
-/* Stats Panel */
-#statsPanel {
-  font-family: monospace;
-  padding: 10px;
-  margin: 10px;
-  background: #1a1a1a;
-  border: 1px solid #444;
-  border-radius: 6px;
+/* YouTube iframe */
+.player-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
-#stats {
-  white-space: pre-wrap;
+/* Controls panel */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.controls button {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.controls button:hover {
+  background: #555;
 }
