@@ -24,14 +24,14 @@
 
 ```mermaid
 flowchart TD
-    A[Ξεκινάει η εφαρμογή] --> B{Υπάρχει τοπικό αρχείο list.txt;}
-    B -- Ναι --> C[Φόρτωση από Local list.txt]
-    B -- Όχι --> D{Υπάρχει διαθέσιμη Web λίστα;}
-    D -- Ναι --> E[Φόρτωση από Web list.txt (GitHub)]
-    D -- Όχι --> F[Χρήση Internal list (ενσωματωμένη)]
-    C --> G[videoList έτοιμη]
-    E --> G[videoList έτοιμη]
-    F --> G[videoList έτοιμη]
+    A[App starts] --> B{Local list.txt exists?}
+    B -- Yes --> C[Load from Local list.txt]
+    B -- No --> D{Web list available?}
+    D -- Yes --> E[Load from Web list.txt (GitHub)]
+    D -- No --> F[Use Internal list (embedded)]
+    C --> G[videoList ready]
+    E --> G[videoList ready]
+    F --> G[videoList ready]
     G --> H[Init Players]
 ```
 - **Local**: Αν υπάρχει `list.txt` στο ίδιο directory, φορτώνεται αυτό.  
