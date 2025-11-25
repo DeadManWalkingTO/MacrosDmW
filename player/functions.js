@@ -50,39 +50,23 @@ function getRandomVideos(count) {
   return shuffled.slice(0, count);
 }
 
-// --- Player initialization (iframe-based, Option A)
+// --- Player initialization (div-based, Option A)
 function initPlayers(videoIds) {
   const container = document.querySelector(".player-container");
-  if (!container) {
-    log(`[${ts()}] ❌ Player container not found (.player-container)`);
-    return;
-  }
-
   players = [];
 
   videoIds.forEach((id, idx) => {
-    const iframe = document.getElementById(`player${idx + 1}`);
-    if (!iframe) {
-      log(`[${ts()}] ❌ Missing iframe #player${idx + 1}`);
-      return;
-    }
-
-    const player = new YT.Player(iframe, {
+    const player = new YT.Player(`player${idx + 1}`, {
       videoId: id,
       events: {
         onReady: () => log(`[${ts()}] ✅ Player ${idx + 1} ready — id=${id}`),
         onStateChange: e => handlePlayerStateChange(e, idx + 1, id)
       }
     });
-
     players.push(player);
   });
 
-  log(
-    `[${ts()}] ✅ Players initialized (${players.length}/${
-      videoIds.length
-    }) — Source: ${listSource} (Total IDs = ${videoList.length})`
-  );
+  log(`[${ts()}] ✅ Players initialized (${players.length}/${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
 // --- Player state handler
@@ -108,7 +92,7 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
   }
 }
 
-// --- Stats updater (έκδοση στην ίδια λίστα/γραμμή)
+// --- Stats updater
 function updateStats() {
   const statsList = document.getElementById("stats");
   if (!statsList) return;
