@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v1.3.2";
+const JS_VERSION = "v1.3.3";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -63,19 +63,19 @@ function getRandomVideos(n) { return [...videoList].sort(() => Math.random() - 0
 // --- Load list with triple fallback
 function loadVideoList() {
   return fetch("list.txt")
-    .then(r => r.ok ? r.text() : Promise.reject())
+    .then(r => r.ok ? r.text() : Promise.reject("local-not-found"))
     .then(text => {
-      const arr = text.trim().split("\n").filter(Boolean);
+      const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
       if (arr.length) { listSource = "Local"; return arr; }
-      throw "empty";
+      throw "local-empty";
     })
     .catch(() => {
       return fetch("https://deadmanwalkingto.github.io/MacrosDmW/player/list.txt")
-        .then(r => r.ok ? r.text() : Promise.reject())
+        .then(r => r.ok ? r.text() : Promise.reject("web-not-found"))
         .then(text => {
-          const arr = text.trim().split("\n").filter(Boolean);
+          const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
           if (arr.length) { listSource = "Web"; return arr; }
-          throw "empty";
+          throw "web-empty";
         })
         .catch(() => { listSource = "Internal"; return internalList; });
     });
@@ -89,6 +89,16 @@ loadVideoList()
     if (typeof YT !== "undefined" && YT.Player) initPlayers(getRandomVideos(8));
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
+
+// --- Reload list (manual, δεν επηρεάζει τους ενεργούς players)
+function reloadList() {
+  loadVideoList().then(list => {
+    videoList = list;
+    log(`[${ts()}] 🔄 List reloaded — Source: ${listSource} (Total IDs = ${videoList.length})`);
+  }).catch(err => {
+    log(`[${ts()}] ❌ Reload failed: ${err}`);
+  });
+}
 
 // --- YouTube API ready -> init players
 function onYouTubeIframeAPIReady() {
@@ -108,7 +118,7 @@ function initPlayers(videoIds) {
       events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
     });
   });
-  log(`[${ts()}] ✅ Players initialized (${videoIds.length}) — Source: ${listSource}`);
+  log(`[${ts()}] ✅ Players initialized (${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
 function onPlayerReady(e, i) {
