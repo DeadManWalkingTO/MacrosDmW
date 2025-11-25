@@ -81,21 +81,23 @@
 ## 🔁 Flowchart fallback λίστας
 
 ```mermaid
+
 flowchart TD
     A[Start] --> B{Local list.txt exists and valid?}
     B -- Yes --> C[Load Local list.txt]
     B -- No --> D{Remote list.txt reachable and valid?}
-    D -- Yes --> E[Load Remote list.txt (GitHub)]
-    D -- No --> F[Load Internal list (embedded in functions.js)]
-    C --> G[Set listSource = "Local"]
-    E --> H[Set listSource = "Web"]
-    F --> I[Set listSource = "Internal"]
+    D -- Yes --> E[Load Remote list.txt from GitHub]
+    D -- No --> F[Load Internal list embedded in functions.js]
+    C --> G[Set listSource = Local]
+    E --> H[Set listSource = Web]
+    F --> I[Set listSource = Internal]
     G --> J[videoList ready]
     H --> J
     I --> J
     J --> K{YT API ready?}
     K -- Yes --> L[Init 8 Players with random subset]
     K -- No --> M[Wait until API ready, then Init]
+
 ```
 
 📌 Σημείωση
