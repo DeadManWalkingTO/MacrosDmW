@@ -1,30 +1,4 @@
 // ==========================
-// YouTube API Initialization
-// ==========================
-let players = [];
-
-function onYouTubeIframeAPIReady() {
-  // Δημιουργία player1
-  players.push(new YT.Player('player1', {
-    events: {
-      'onReady': onPlayerReady
-    }
-  }));
-
-  // Δημιουργία player2
-  players.push(new YT.Player('player2', {
-    events: {
-      'onReady': onPlayerReady
-    }
-  }));
-}
-
-function onPlayerReady(event) {
-  const id = event.target.getIframe().id;
-  logEvent(`Player ${id} → Ready`);
-}
-
-// ==========================
 // Utility Functions
 // ==========================
 function logEvent(msg) {
@@ -35,21 +9,36 @@ function logEvent(msg) {
 }
 
 // ==========================
-// Realistic Mode Toggle
+// YouTube API Initialization
 // ==========================
-let realisticMode = false;
+let players = [];
 
-function toggleRealisticMode() {
-  realisticMode = !realisticMode;
-  logEvent(`Realistic Mode → ${realisticMode ? "ON" : "OFF"}`);
-  if (realisticMode) {
-    scheduleAutoNextAll(players);
-    players.forEach(p => {
-      scheduleQualityChange(p);
-      simulateBuffer(p);
-      scheduleDynamicVolume(p);
-    });
-  }
+function onYouTubeIframeAPIReady() {
+  fetch("list.txt")
+    .then(response => response.text())
+    .then(text => {
+      const ids = text.trim().split("\n");
+      ids.forEach((id, index) => {
+        const playerId = "player" + (index + 1);
+
+        // Δημιουργία container
+        const div = document.createElement("div");
+        div.id = playerId;
+        document.getElementById("players").appendChild(div);
+
+        // Δημιουργία YouTube Player
+        players.push(new YT.Player(playerId, {
+          videoId: id,
+          events: { 'onReady': onPlayerReady }
+        }));
+      });
+    })
+    .catch(err => logEvent("Error loading list.txt: " + err));
+}
+
+function onPlayerReady(event) {
+  const id = event.target.getIframe().id;
+  logEvent(`Player ${id} → Ready`);
 }
 
 // ==========================
