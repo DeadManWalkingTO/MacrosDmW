@@ -1,37 +1,49 @@
 // utils.js
+// Βοηθητικές συναρτήσεις για logging, χρονισμό και καθαρισμό log
 
+// --- Ρύθμιση ορίου γραμμών (fallback αν δεν υπάρχει MAX_LOGS από functions.js)
 const MAX_LOGS_FALLBACK = 50;
 function getMaxLogs() {
   return (typeof MAX_LOGS === "number" && MAX_LOGS > 0) ? MAX_LOGS : MAX_LOGS_FALLBACK;
 }
 
+// --- Timestamp helper (HH:MM:SS)
 function ts() {
   const now = new Date();
   return now.toLocaleTimeString("el-GR", { hour12: false });
 }
 
+// --- Logging στο <pre id="log"> με trimming
 function log(msg) {
-  console.log(msg);
+  // Echo στην κονσόλα (ασφαλές try/catch)
+  try { console.log(msg); } catch (_) {}
+
   const pre = document.getElementById("log");
   if (pre) {
-    pre.textContent = pre.textContent
-      ? `${pre.textContent}\n${msg}`
-      : `${msg}`;
+    // Προσθήκη γραμμής
+    pre.textContent = pre.textContent ? `${pre.textContent}\n${msg}` : `${msg}`;
+
+    // Trim στις τελευταίες MAX_LOGS γραμμές
     const lines = pre.textContent.split("\n");
     const max = getMaxLogs();
     if (lines.length > max) {
       pre.textContent = lines.slice(lines.length - max).join("\n");
     }
   }
+
+  // Ενημέρωση stats (αν υπάρχει)
   if (typeof updateStats === "function") {
-    try { updateStats(); } catch (e) { console.warn("updateStats failed:", e); }
+    try { updateStats(); } catch (e) { try { console.warn("updateStats failed:", e); } catch (_) {} }
   }
 }
 
+// --- Καθαρισμός Activity Log
 function clearLogs() {
   const pre = document.getElementById("log");
   if (pre) pre.textContent = "";
+
+  // Μετά τον καθαρισμό, ενημέρωσε τα stats (αν υπάρχει)
   if (typeof updateStats === "function") {
-    try { updateStats(); } catch (e) { console.warn("updateStats failed after clearLogs:", e); }
+    try { updateStats(); } catch (e) { try { console.warn("updateStats failed after clearLogs:", e); } catch (_) {} }
   }
 }
