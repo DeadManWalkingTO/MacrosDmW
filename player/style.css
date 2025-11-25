@@ -1,16 +1,23 @@
+/* Γενικές ρυθμίσεις */
 body {
   font-family: Arial, sans-serif;
   background: #222;
   color: #eee;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-body.light {
-  background: #f9f9f9;
-  color: #333;
+/* Όλα τα panels να μην ξεπερνούν το πλάτος του browser */
+#activityPanel,
+#statsPanel,
+.controls,
+.player-container {
+  max-width: 100vw;   /* περιορισμός στο πλάτος του viewport */
+  overflow-x: hidden; /* αποφυγή οριζόντιου scroll */
 }
 
+/* Controls */
 .controls {
   text-align: center;
   padding: 10px;
@@ -31,11 +38,14 @@ body.light {
   background: #666;
 }
 
+/* Players σε grid */
 .player-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   padding: 10px;
+  width: 100%;        /* πάντα να πιάνει όλο το διαθέσιμο πλάτος */
+  box-sizing: border-box;
 }
 
 .player-container div {
@@ -44,18 +54,21 @@ body.light {
   background: #000;
 }
 
+/* Responsive για tablets */
 @media (max-width: 768px) {
   .player-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Responsive για κινητά */
 @media (max-width: 480px) {
   .player-container {
     grid-template-columns: 1fr;
   }
 }
 
+/* Activity Log */
 #activityPanel {
   font-family: monospace;
   padding: 10px;
@@ -67,6 +80,7 @@ body.light {
   overflow-y: auto;
 }
 
+/* Stats Panel */
 #statsPanel {
   font-family: monospace;
   padding: 10px;
