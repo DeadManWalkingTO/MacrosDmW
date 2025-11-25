@@ -8,37 +8,37 @@
 </head>
 <body>
 
-  <!-- Κουμπιά πρώτα (στη μορφή που είχαν) -->
-  <div id="controls">
+  <!-- Controls (class για να ταιριάζει με CSS) -->
+  <div class="controls">
     <button onclick="playAll()">▶ Play All</button>
     <button onclick="pauseAll()">⏸ Pause All</button>
     <button onclick="restartAll()">🔄 Restart</button>
     <button onclick="shuffleAll()">🔀 Shuffle</button>
-    <button onclick="muteAll()">🔇 Mute/Unmute</button>
+    <button onclick="toggleMuteAll()">🔇 Mute/Unmute</button>
     <button onclick="reloadList()">📂 Reload List</button>
     <button onclick="toggleTheme()">🌓 Theme</button>
     <button onclick="clearLogs()">🧹 Clear Logs</button>
   </div>
 
-  <!-- Players (2 γραμμές × 4, responsive 2×2/1×8 από CSS) -->
-  <div id="players">
-    <div id="player1"></div>
-    <div id="player2"></div>
-    <div id="player3"></div>
-    <div id="player4"></div>
-    <div id="player5"></div>
-    <div id="player6"></div>
-    <div id="player7"></div>
-    <div id="player8"></div>
+  <!-- Players (παλαιότερη διάταξη: iframe grid 4×2) -->
+  <div class="player-container">
+    <iframe id="player1"></iframe>
+    <iframe id="player2"></iframe>
+    <iframe id="player3"></iframe>
+    <iframe id="player4"></iframe>
+    <iframe id="player5"></iframe>
+    <iframe id="player6"></iframe>
+    <iframe id="player7"></iframe>
+    <iframe id="player8"></iframe>
   </div>
 
-  <!-- Log panel (στη μορφή που είχε) -->
+  <!-- Activity Log -->
   <div id="activityPanel">
     <h2>Activity Log</h2>
     <pre id="log"></pre>
   </div>
 
-  <!-- Stats panel (τελευταίο, στη μορφή που είχε) -->
+  <!-- Stats -->
   <div id="statsPanel">
     <h2>Stats</h2>
     <ul id="stats"></ul>
