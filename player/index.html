@@ -3,28 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="html-version" content="v2.0.0">
-  <title>YouTube Multi-Viewer</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; }
-    body.light { background: #f9f9f9; color: #333; }
-    h1 { text-align: center; padding: 10px; }
-    #statsPanel, #activityPanel { font-family: monospace; padding: 10px; }
-    #activityPanel { max-height: 200px; overflow-y: auto; border-top: 1px solid #444; border-bottom: 1px solid #444; }
-    .player-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px; }
-    iframe { width: 100%; height: 200px; border: none; }
-    .controls { text-align: center; padding: 10px; }
-    .controls button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
-  </style>
+  <title>Active Desktop</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>YouTube Multi-Viewer</h1>
 
-  <!-- Panels -->
-  <div id="statsPanel">📊 Stats —</div>
-  <div id="activityPanel"></div>
+  <!-- Κουμπιά πρώτα -->
+  <div id="controls">
+    <button onclick="playAll()">▶ Play All</button>
+    <button onclick="pauseAll()">⏸ Pause All</button>
+    <button onclick="restartAll()">🔄 Restart</button>
+    <button onclick="shuffleAll()">🔀 Shuffle</button>
+    <button onclick="muteAll()">🔇 Mute/Unmute</button>
+    <button onclick="reloadList()">📂 Reload List</button>
+    <button onclick="toggleTheme()">🌓 Theme</button>
+    <button onclick="clearLogs()">🧹 Clear Logs</button>
+  </div>
 
   <!-- Players -->
-  <div class="player-container">
+  <div id="players">
     <div id="player1"></div>
     <div id="player2"></div>
     <div id="player3"></div>
@@ -35,26 +32,20 @@
     <div id="player8"></div>
   </div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <button onclick="playAll()">▶ Play All</button>
-    <button onclick="pauseAll()">⏸ Pause All</button>
-    <button onclick="stopAll()">⏹ Stop All</button>
-    <button onclick="nextAll()">⏭ Next All</button>
-    <button onclick="shuffleAll()">🎲 Shuffle All</button>
-    <button onclick="restartAll()">🔁 Restart All</button>
-    <button onclick="toggleMuteAll()">🔊/🔇 Toggle Mute</button>
-    <button onclick="randomizeVolumeAll()">🔊 Randomize Volume</button>
-    <button onclick="normalizeVolumeAll()">🎚 Normalize Volume</button>
-    <button onclick="toggleTheme()">🌓 Theme</button>
-    <button onclick="clearLogs()">🧹 Clear Logs</button>
-    <button onclick="reloadList()">🔄 Reload List</button>
+  <!-- Log panel -->
+  <div id="activityPanel">
+    <h2>Activity Log</h2>
+    <pre id="log"></pre>
   </div>
 
-  <!-- YouTube API -->
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- Stats panel -->
+  <div id="statsPanel">
+    <h2>Stats</h2>
+    <ul id="stats"></ul>
+  </div>
 
-  <!-- Modular scripts -->
+  <!-- Scripts -->
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="utils.js"></script>
   <script src="controls.js"></script>
   <script src="listLoader.js"></script>
