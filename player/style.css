@@ -1,0 +1,96 @@
+/* Γενικές ρυθμίσεις */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #222;
+  color: #eee;
+}
+
+body.light {
+  background: #f9f9f9;
+  color: #333;
+}
+
+/* Κουμπιά */
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: #111;
+}
+
+#controls button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#controls button:hover {
+  background: #666;
+}
+
+/* Players σε grid 4x2 */
+#players {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+#players div {
+  background: #000;
+  height: 200px; /* μπορείς να το προσαρμόσεις */
+}
+
+/* Responsive για tablets */
+@media (max-width: 768px) {
+  #players {
+    grid-template-columns: repeat(2, 1fr); /* 2 ανά γραμμή */
+  }
+}
+
+/* Responsive για κινητά */
+@media (max-width: 480px) {
+  #players {
+    grid-template-columns: 1fr; /* 1 ανά γραμμή */
+  }
+}
+
+/* Activity Log */
+#activityPanel {
+  padding: 10px;
+  margin: 10px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-family: monospace;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Stats Panel */
+#statsPanel {
+  padding: 10px;
+  margin: 10px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+#statsPanel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#statsPanel li {
+  margin: 4px 0;
+}
