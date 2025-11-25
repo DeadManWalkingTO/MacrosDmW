@@ -1,12 +1,11 @@
 // functions.js
-// Κεντρικό orchestrator του project
 
 // --- Versions
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
-const JS_VERSION = "v2.1.1"; // χειροκίνητη έκδοση JS ΜΟΝΟ εδώ
+const JS_VERSION = "v2.1.1";
 
 // --- Log settings
-const MAX_LOGS = 50; // μέγιστος αριθμός γραμμών στο Activity Log
+const MAX_LOGS = 50;
 
 // --- Helpers
 function formatVersion(v) {
@@ -16,10 +15,9 @@ function formatVersion(v) {
 
 // --- State
 let players = [];
-let playerTimers = {};
 let videoList = [];
 let isMutedAll = true;
-let listSource = "Internal"; // Local | Web | Internal
+let listSource = "Internal";
 
 const stats = {
   autoNext: 0,
@@ -37,10 +35,8 @@ loadVideoList()
     log(`[${ts()}] 🚀 Project start — HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`);
     if (typeof YT !== "undefined" && YT.Player) {
       initPlayers(getRandomVideos(8));
-    } else {
-      log(`[${ts()}] ⚠️ YT API not ready yet`);
     }
-    updateStats(); // ενημέρωση stats στην εκκίνηση
+    updateStats();
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
@@ -50,11 +46,9 @@ function getRandomVideos(count) {
   return shuffled.slice(0, count);
 }
 
-// --- Player initialization (div-based, Option A)
+// --- Player initialization
 function initPlayers(videoIds) {
-  const container = document.querySelector(".player-container");
   players = [];
-
   videoIds.forEach((id, idx) => {
     const player = new YT.Player(`player${idx + 1}`, {
       videoId: id,
@@ -65,7 +59,6 @@ function initPlayers(videoIds) {
     });
     players.push(player);
   });
-
   log(`[${ts()}] ✅ Players initialized (${players.length}/${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
@@ -81,29 +74,25 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
     stats.autoNext++;
     updateStats();
     log(`[${ts()}] ⏭ Player ${playerIndex} ended — id=${videoId}`);
-
     const nextId = getRandomVideos(1)[0];
     if (nextId) {
       event.target.loadVideoById(nextId);
       log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
-    } else {
-      log(`[${ts()}] ⚠️ No next video available`);
     }
   }
 }
 
-// --- Stats updater
+// --- Stats updater (μία γραμμή)
 function updateStats() {
-  const statsList = document.getElementById("stats");
-  if (!statsList) return;
+  const statsDiv = document.getElementById("stats");
+  if (!statsDiv) return;
 
-  statsList.innerHTML = `
-    <li>AutoNext: ${stats.autoNext}</li>
-    <li>ManualNext: ${stats.manualNext}</li>
-    <li>Shuffle: ${stats.shuffle}</li>
-    <li>Restart: ${stats.restart}</li>
-    <li>Pauses: ${stats.pauses}</li>
-    <li>VolumeChanges: ${stats.volumeChanges}</li>
-    <li>— HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}</li>
-  `;
+  statsDiv.textContent =
+    `AutoNext: ${stats.autoNext} | ` +
+    `ManualNext: ${stats.manualNext} | ` +
+    `Shuffle: ${stats.shuffle} | ` +
+    `Restart: ${stats.restart} | ` +
+    `Pauses: ${stats.pauses} | ` +
+    `VolumeChanges: ${stats.volumeChanges} | ` +
+    `HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`;
 }
