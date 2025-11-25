@@ -23,7 +23,6 @@ const stats = {
   volumeChanges: 0
 };
 
-// --- Εκκίνηση project
 loadVideoList()
   .then(list => {
     videoList = list;
@@ -35,13 +34,11 @@ loadVideoList()
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
-// --- Επιλογή τυχαίων video IDs
 function getRandomVideos(count) {
   const shuffled = [...videoList].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-// --- Αρχικοποίηση players
 function initPlayers(videoIds) {
   players = [];
   videoIds.forEach((id, idx) => {
@@ -57,7 +54,6 @@ function initPlayers(videoIds) {
   log(`[${ts()}] ✅ Players initialized (${players.length}/${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
-// --- Διαχείριση καταστάσεων player
 function handlePlayerStateChange(event, playerIndex, videoId) {
   if (event.data === YT.PlayerState.PLAYING) {
     log(`[${ts()}] ▶ Player ${playerIndex} started — id=${videoId}`);
@@ -77,7 +73,7 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
   }
 }
 
-// --- Stats updater (μία γραμμή, χωρίς κενή γραμμή στην αρχή)
+// Stats σε μία γραμμή (χωρίς κενή γραμμή στην αρχή)
 function updateStats() {
   const statsDiv = document.getElementById("stats");
   if (!statsDiv) return;
