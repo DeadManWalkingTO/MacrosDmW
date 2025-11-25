@@ -1,39 +1,73 @@
 // functions.js
-// Κεντρικό orchestrator που συνδέει όλα τα modules
-
-// --- Versions
-const JS_VERSION = "v2.0.0";
-const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
-
-// --- Behavior toggle
-const USE_HUMAN_BEHAVIOR_PRO = true; // true = HumanBehaviorPro.js, false = RandomBehavior
+// Κεντρικό orchestrator του project
 
 // --- State
 let players = [];
-let playerTimers = {}; // timers ανά player index
+let playerTimers = {};
 let videoList = [];
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
-const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
 
-// --- Log settings
-const MAX_LOGS = 50;
-
-// --- Config
-const START_DELAY_MIN_S = 5, START_DELAY_MAX_S = 180;
-const INIT_SEEK_MAX_S = 60;
-const UNMUTE_VOL_MIN = 10, UNMUTE_VOL_MAX = 30;
-const NORMALIZE_VOLUME_TARGET = 20;
-const PAUSE_SMALL_MS = [2000, 5000];
-const PAUSE_LARGE_MS = [15000, 30000];
-const MID_SEEK_INTERVAL_MIN = [5, 9]; // minutes
-const MID_SEEK_WINDOW_S = [30, 120];  // seconds
-
-// --- Kick off project
+// --- Initialization
 loadVideoList()
   .then(list => {
     videoList = list;
     log(`[${ts()}] 🚀 Project start — HTML ${HTML_VERSION} | JS ${JS_VERSION}`);
-    if (typeof YT !== "undefined" && YT.Player) initPlayers(getRandomVideos(8));
+    if (typeof YT !== "undefined" && YT.Player) {
+      initPlayers(getRandomVideos(8));
+    }
+
+    // Μετά το initialization, πρόσθεσε την έκδοση στο Stats panel
+    const statsPanel = document.getElementById("statsPanel");
+    if (statsPanel) {
+      const versionInfo = document.createElement("div");
+      versionInfo.textContent = `— HTML ${HTML_VERSION} | JS ${JS_VERSION}`;
+      statsPanel.appendChild(versionInfo);
+    }
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
+
+// --- Utility
+function getRandomVideos(count) {
+  const shuffled = [...videoList].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// --- Player initialization
+function initPlayers(videoIds) {
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  players = [];
+
+  videoIds.forEach((id, idx) => {
+    const div = document.createElement("div");
+    div.id = `player${idx + 1}`;
+    container.appendChild(div);
+
+    const player = new YT.Player(div.id, {
+      videoId: id,
+      events: {
+        onReady: () => log(`[${ts()}] ✅ Player ${idx + 1} ready — id=${id}`),
+        onStateChange: e => handlePlayerStateChange(e, idx + 1, id)
+      }
+    });
+
+    players.push(player);
+  });
+
+  log(`[${ts()}] ✅ Players initialized (${players.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
+}
+
+// --- Player state handler
+function handlePlayerStateChange(event, playerIndex, videoId) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    log(`[${ts()}] ▶ Player ${playerIndex} started — id=${videoId}`);
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    log(`[${ts()}] ⏸ Player ${playerIndex} paused — id=${videoId}`);
+  } else if (event.data === YT.PlayerState.ENDED) {
+    log(`[${ts()}] ⏭ Player ${playerIndex} ended — id=${videoId}`);
+    const nextId = getRandomVideos(1)[0];
+    event.target.loadVideoById(nextId);
+    log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
+  }
+}
