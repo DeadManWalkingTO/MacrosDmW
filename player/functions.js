@@ -1,19 +1,14 @@
 // functions.js
 
-// --- Versions
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 const JS_VERSION = "v2.1.1";
-
-// --- Log settings
 const MAX_LOGS = 50;
 
-// --- Helpers
 function formatVersion(v) {
   if (!v) return "vunknown";
   return v.startsWith("v") ? v : `v${v}`;
 }
 
-// --- State
 let players = [];
 let videoList = [];
 let isMutedAll = true;
@@ -28,7 +23,6 @@ const stats = {
   volumeChanges: 0
 };
 
-// --- Kick off project
 loadVideoList()
   .then(list => {
     videoList = list;
@@ -40,13 +34,11 @@ loadVideoList()
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
-// --- Utility
 function getRandomVideos(count) {
   const shuffled = [...videoList].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-// --- Player initialization
 function initPlayers(videoIds) {
   players = [];
   videoIds.forEach((id, idx) => {
@@ -62,7 +54,6 @@ function initPlayers(videoIds) {
   log(`[${ts()}] ✅ Players initialized (${players.length}/${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
-// --- Player state handler
 function handlePlayerStateChange(event, playerIndex, videoId) {
   if (event.data === YT.PlayerState.PLAYING) {
     log(`[${ts()}] ▶ Player ${playerIndex} started — id=${videoId}`);
@@ -82,13 +73,13 @@ function handlePlayerStateChange(event, playerIndex, videoId) {
   }
 }
 
-// --- Stats updater (μία γραμμή)
+// Stats σε μία γραμμή
 function updateStats() {
   const statsDiv = document.getElementById("stats");
   if (!statsDiv) return;
 
   statsDiv.textContent =
-    `AutoNext: ${stats.autoNext} | ` +
+    `Stats | AutoNext: ${stats.autoNext} | ` +
     `ManualNext: ${stats.manualNext} | ` +
     `Shuffle: ${stats.shuffle} | ` +
     `Restart: ${stats.restart} | ` +
