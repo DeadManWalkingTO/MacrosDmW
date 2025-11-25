@@ -1,6 +1,9 @@
 // --- Versions
-const JS_VERSION = "v1.3.4";
+const JS_VERSION = "v1.3.5";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
+
+// --- Behavior toggle
+const USE_HUMAN_BEHAVIOR = true; // true = HumanBehavior.js, false = RandomBehavior
 
 // --- State
 let players = [];
@@ -150,8 +153,13 @@ function onPlayerReady(e, i) {
     p.playVideo();
     p.setPlaybackQuality('small');
     logPlayer(i, `▶ Start after ${Math.round(startDelay/1000)}s, seek=${seek}s`, p.getVideoData().video_id);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
+
+    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
+      scheduleHumanBehavior(p, i);
+    } else {
+      scheduleRandomPauses(p, i);
+      scheduleMidSeek(p, i);
+    }
   }, startDelay);
 }
 
@@ -163,12 +171,17 @@ function onPlayerStateChange(e, i) {
     p.loadVideoById(newId);
     stats.autoNext++;
     logPlayer(i, "⏭ AutoNext", newId);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
+
+    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
+      scheduleHumanBehavior(p, i);
+    } else {
+      scheduleRandomPauses(p, i);
+      scheduleMidSeek(p, i);
+    }
   }
 }
 
-// --- Natural behaviors με timers
+// --- Random behaviors (fallback)
 function scheduleRandomPauses(p, i) {
   playerTimers[i] = playerTimers[i] || [];
 
@@ -235,8 +248,13 @@ function nextAll() {
     p.loadVideoById(newId);
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
+
+    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
+      scheduleHumanBehavior(p, i);
+    } else {
+      scheduleRandomPauses(p, i);
+      scheduleMidSeek(p, i);
+    }
   });
   stats.manualNext++;
   log(`[${ts()}] ⏭ Next All`);
@@ -249,8 +267,13 @@ function shuffleAll() {
     p.loadVideoById(id);
     p.playVideo();
     logPlayer(i, "🎲 Shuffle", id);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
+
+    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
+      scheduleHumanBehavior(p, i);
+    } else {
+      scheduleRandomPauses(p, i);
+      scheduleMidSeek(p, i);
+    }
   });
   stats.shuffle++;
   log(`[${ts()}] 🎲 Shuffle All`);
@@ -264,8 +287,13 @@ function restartAll() {
     p.loadVideoById(id);
     p.playVideo();
     logPlayer(i, "🔁 Restart", id);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
+
+    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
+      scheduleHumanBehavior(p, i);
+    } else {
+      scheduleRandomPauses(p, i);
+      scheduleMidSeek(p, i);
+    }
   });
   stats.restart++;
   log(`[${ts()}] 🔁 Restart All`);
