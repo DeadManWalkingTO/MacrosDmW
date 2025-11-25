@@ -1,10 +1,11 @@
 // functions.js
 // Κεντρικό orchestrator του project
 
-// --- Versions (HTML από meta, JS από global που ήδη ορίζεται αλλού)
+// --- Versions
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
+const JS_VERSION = "v2.1.1"; // Ορισμός έκδοσης JS μόνο εδώ
 
-// Μορφοποίηση: πάντα πρόθεμα "v"
+// Formatter: πάντα πρόθεμα "v"
 function formatVersion(v) {
   if (!v) return "vunknown";
   return v.startsWith("v") ? v : `v${v}`;
@@ -26,9 +27,6 @@ const stats = {
   volumeChanges: 0
 };
 
-// --- Log settings
-const MAX_LOGS = 50;
-
 // --- Kick off project
 loadVideoList()
   .then(list => {
@@ -37,7 +35,6 @@ loadVideoList()
     if (typeof YT !== "undefined" && YT.Player) {
       initPlayers(getRandomVideos(8));
     }
-    // Ενημέρωσε τα stats με την έκδοση στην ίδια λίστα
     updateStats();
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
