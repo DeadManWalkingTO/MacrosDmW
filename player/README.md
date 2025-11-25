@@ -1,112 +1,85 @@
-# 🎬 Multi‑Viewer YouTube Player
+# 🎬 YouTube Multi-Viewer
 
-Ένα web‑based multi‑viewer που εμφανίζει και διαχειρίζεται πολλαπλά YouTube βίντεο ταυτόχρονα, με φυσική συμπεριφορά και πλήρη έλεγχο μέσω UI.
-
----
-
-## ✨ Χαρακτηριστικά
-
-### 📂 Διαχείριση Λίστας Βίντεο
-- **Προεπιλογή** → Φόρτωση `list.txt` από τον ίδιο φάκελο με το `index.html` και `functions.js`.
-- **Fallback #1** → Αν αποτύχει, φόρτωση από το remote αρχείο (https://deadmanwalkingto.github.io/MacrosDmW/player/list.txt)
-- **Fallback #2** → Αν αποτύχει κι αυτό, χρήση της εσωτερικής λίστας 15 IDs που είναι ενσωματωμένα στο `functions.js`.
-- **Reload List** → Κουμπί που ξαναφορτώνει τη λίστα και εμφανίζει μήνυμα με την πηγή και το πλήθος IDs. Όπως παρακάτω.
-🔄 List reloaded — Source: Local (Total IDs = 25)
-
-### 🎬 Διαχείριση Βίντεο
-- 8 YouTube players σε grid (4×2 σε desktop, 2×4 σε mobile).
-- Responsive layout με media queries.
-- Τυχαία καθυστέρηση εκκίνησης (5–180s).
-- Τυχαίο αρχικό seek (0–60s).
-- Auto‑next → όταν τελειώσει ένα βίντεο, φορτώνεται αυτόματα άλλο από τη λίστα.
-- Mid‑seek → κάθε 5–9 λεπτά γίνεται τυχαία μετακίνηση σε νέο σημείο (30–120s).
-- Τυχαίες παύσεις:
-- Μικρές (2–5s).
-- Μεγάλες (15–30s).
-- Playback quality ορίζεται σε “small”.
-
-### 🔊 Έλεγχος Ήχου
-- **Mute/Unmute All**
-- Στο πρώτο click λειτουργεί ως Enable Sound, κάνει `unMute()` και δίνει τυχαία ένταση (10–30%).
-- Στο επόμενο click ξανακάνει mute.
-- **Randomize Volume All** → τυχαία ένταση (0–100%).
-- **Normalize Volume All** → επαναφορά έντασης σε σταθερή τιμή (20%).
-
-### 🖥️ Panel Ελέγχου
-- ▶ Play All  
-- ⏸ Pause All  
-- ⏹ Stop All  
-- ⏭ Next All  
-- 🎲 Shuffle All  
-- 🔁 Restart All  
-- 🔇 Mute/Unmute All  
-- 🔊 Randomize Volume All  
-- 🎚 Normalize Volume All  
-- 🌓 Dark/Light Mode Toggle  
-- 🧹 Clear Logs (καθαρίζει το activity panel)  
-- 🔄 Reload List (ανανεώνει τη λίστα IDs)
-
-### 📊 Activity & Stats Panel
-- **Activity panel** → εμφανίζει σε πραγματικό χρόνο όλα τα logs (start, pause, resume, seek, volume changes, auto‑next).
-- **Stats panel** → μετρητές για AutoNext, Manual Next, Shuffle, Restart, Pauses, Volume Changes.
-
-Ακολουθεί παράδειγμα logs.
-🚀 Project start — HTML v1.2.1 | JS v1.3.3
-✅ Players initialized (8) — Source: Local (Total IDs = 25) 
-[12:34:56] Player 3 — ▶ Start after 45s, seek=12s : id=JFweOaiCoj4 
-🧹 Logs cleared 
-🔄 List reloaded — Source: Local (Total IDs = 25)
+Ένα εργαλείο για την ταυτόχρονη προβολή πολλαπλών YouTube players με ρεαλιστική προσομοίωση συμπεριφοράς χρήστη.
 
 ---
 
-## 📂 Δομή Project
+## 📂 Modular Αρχιτεκτονική
 
-- **index.html** → Layout, κουμπιά, panels, σύνδεση με JS  
-- **functions.js** → Όλη η λογική του player + τριπλό fallback λίστας + logs + stats  
-- **list.txt** → Προεπιλεγμένη λίστα IDs (αν υπάρχει)  
-- **README.md** → Περιγραφή χαρακτηριστικών  
+Το project έχει διαχωριστεί σε modules για καλύτερη διαχείριση:
 
----
-
-## 🚀 Χρήση
-
-1. Βάλε το `index.html`, το `functions.js` και (προαιρετικά) το `list.txt` στον ίδιο φάκελο.  
-2. Άνοιξε το `index.html` σε browser με σύνδεση στο Internet.  
-3. Το YouTube IFrame API φορτώνεται αυτόματα.  
-4. Οι players ξεκινούν με τυχαία καθυστέρηση και συμπεριφορά.  
-5. Χρησιμοποίησε τα κουμπιά για να ελέγξεις όλους τους players.  
+- **utils.js** → Βοηθητικές συναρτήσεις (logging, randomization, στατιστικά)
+- **controls.js** → Συναρτήσεις για κουμπιά (Play, Pause, Restart, Shuffle, Mute κ.λπ.)
+- **listLoader.js** → Φόρτωση λίστας βίντεο με fallback (Local → Web → Internal)
+- **playerHandlers.js** → YouTube API callbacks (onReady, onStateChange, initPlayers)
+- **behaviors.js** → Default random behaviors (pauses, mid-seek)
+- **HumanBehaviorPro.js** → Προηγμένη προσομοίωση συμπεριφοράς (extended pauses, skips, drift, quality changes, tab switching)
+- **functions.js** → Main orchestrator (state, config, kickoff)
 
 ---
 
-## 🔁 Flowchart fallback λίστας
+## 📂 Video List Fallback Flow
+
+Η εφαρμογή φορτώνει τη λίστα βίντεο με τριπλό fallback:
 
 ```mermaid
-
 flowchart TD
-    A[Start] --> B{Local list.txt exists and valid?}
-    B -- Yes --> C[Load Local list.txt]
-    B -- No --> D{Remote list.txt reachable and valid?}
-    D -- Yes --> E[Load Remote list.txt from GitHub]
-    D -- No --> F[Load Internal list embedded in functions.js]
-    C --> G[Set listSource = Local]
-    E --> H[Set listSource = Web]
-    F --> I[Set listSource = Internal]
-    G --> J[videoList ready]
-    H --> J
-    I --> J
-    J --> K{YT API ready?}
-    K -- Yes --> L[Init 8 Players with random subset]
-    K -- No --> M[Wait until API ready, then Init]
+    A[Ξεκινάει η εφαρμογή] --> B{Υπάρχει τοπικό αρχείο list.txt;}
+    B -- Ναι --> C[Φόρτωση από Local list.txt]
+    B -- Όχι --> D{Υπάρχει διαθέσιμη Web λίστα;}
+    D -- Ναι --> E[Φόρτωση από Web list.txt (GitHub)]
+    D -- Όχι --> F[Χρήση Internal list (ενσωματωμένη)]
+    C --> G[videoList έτοιμη]
+    E --> G[videoList έτοιμη]
+    F --> G[videoList έτοιμη]
+    G --> H[Init Players]
+```
+- **Local**: Αν υπάρχει `list.txt` στο ίδιο directory, φορτώνεται αυτό.  
+- **Web**: Αν δεν υπάρχει τοπικό, γίνεται προσπάθεια φόρτωσης από GitHub.  
+- **Internal**: Αν αποτύχουν και τα δύο, χρησιμοποιείται η ενσωματωμένη λίστα.  
 
+---
+
+## 🎭 HumanBehaviorPro.js
+
+Το module **HumanBehaviorPro.js** προσθέτει πιο φυσική συμπεριφορά στους players:
+
+- Extended pauses με πιθανότητα να μην ξαναπαίξει
+- Skip forward/backward με πιθανότητες
+- Volume drift (μικρές αυξομειώσεις)
+- Quality changes (small, medium, hd720)
+- Tab switching simulation (ένας player κάνει pause, άλλος ξεκινάει)
+- Long idle states
+- Probabilistic events (π.χ. rewind, skip forward, stop)
+
+---
+
+## ⚙️ Χρήση
+
+1. Άνοιξε το `index.html` που φορτώνει όλα τα modules με τη σωστή σειρά.
+2. Ρύθμισε το flag στο `functions.js`:
+
+```js
+const USE_HUMAN_BEHAVIOR_PRO = true;
 ```
 
-📌 Σημείωση
-Αν υπάρχει list.txt στον φάκελο → χρησιμοποιείται αυτό.
+3. Οι players θα χρησιμοποιούν το `scheduleHumanBehaviorPro()` αντί για τα default random behaviors.
 
-Αν λείπει ή είναι άδειο → γίνεται fallback στο remote αρχείο GitHub.
+---
 
-Αν αποτύχει κι αυτό → χρησιμοποιείται η εσωτερική λίστα IDs.
+## 📊 Stats & Logs
 
-Μπορείς να αλλάξεις ή να προσθέσεις IDs απευθείας στο list.txt ή στο internalList του functions.js.
+- Το panel `statsPanel` δείχνει counters (AutoNext, ManualNext, Shuffle, Restart, Pauses, VolumeChanges).
+- Το panel `activityPanel` καταγράφει όλες τις ενέργειες με timestamp.
 
-Το activity panel κρατάει μόνο τα τελευταία 50 logs.
+---
+
+## 🌓 Theme
+
+Υποστηρίζεται εναλλαγή dark/light theme με το κουμπί **🌓 Theme**.
+
+---
+
+## 🧹 Logs
+
+Τα logs μπορούν να καθαριστούν με το κουμπί **🧹 Clear Logs**.
