@@ -1,42 +1,61 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8">
-  <title>Multi Player Grid</title>
-  <link rel="stylesheet" href="style.css?v=1.1"> <!-- ενημερώνουμε έκδοση σε κάθε αλλαγή -->
+  <meta charset="utf-8" />
+  <title>Main Active Desktop Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Έκδοση HTML -->
+  <meta name="html-version" content="v1.2.1" />
+  <style>
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#eee; }
+    .controls { background:#1a1a1a; padding:12px; text-align:center; position:sticky; top:0; z-index:10; border-bottom:1px solid #333; }
+    .controls h1 { margin:0 0 8px; font-size:20px; }
+    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    button { background:#222; color:#eee; border:1px solid #444; padding:8px 14px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#2b2b2b; border-color:#666; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:10px; height:60vh; }
+    iframe { width:100%; height:100%; border:none; border-radius:8px; background:#000; }
+    @media (max-width:768px){ .grid{grid-template-columns:repeat(2,1fr);height:auto;} iframe{height:220px;} }
+    .activity { background:#1a1a1a; border-top:1px solid #333; padding:10px; font-size:13px; height:20vh; overflow-y:auto; }
+    .stats { background:#222; padding:8px; font-size:12px; border-top:1px solid #333; }
+    body.light { background:#f9f9f9; color:#222; }
+    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
+    body.light button { background:#fff; color:#222; border-color:#ccc; }
+    body.light button:hover { background:#ddd; border-color:#999; }
+    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
+    body.light .stats { background:#ddd; border-top-color:#ccc; }
+  </style>
 </head>
 <body>
-
-  <!-- Πάνελ ελέγχου -->
   <div class="controls">
-    <button id="playAll">Play All</button>
-    <button id="pauseAll">Pause All</button>
-    <button id="restartAll">Restart</button>
-    <button id="shuffleAll">Shuffle</button>
-    <button id="muteAll">Mute</button>
+    <h1>Main Active Desktop Page</h1>
+    <div class="row">
+      <button onclick="playAll()">▶ Play All</button>
+      <button onclick="pauseAll()">⏸ Pause All</button>
+      <button onclick="stopAll()">⏹ Stop All</button>
+      <button onclick="nextAll()">⏭ Next All</button>
+      <button onclick="shuffleAll()">🎲 Shuffle All</button>
+      <button onclick="restartAll()">🔁 Restart All</button>
+      <button onclick="toggleMuteAll()">🔇 Mute/Unmute All</button>
+      <button onclick="randomizeVolumeAll()">🔊 Volume Randomize All</button>
+      <button onclick="normalizeVolumeAll()">🎚 Volume Normalize All</button>
+      <button onclick="toggleTheme()">🌓 Dark/Light Mode</button>
+      <button onclick="clearLogs()">🧹 Clear Logs</button>
+      <button onclick="reloadList()">🔄 Reload List</button>
+    </div>
   </div>
 
-  <!-- Grid με 8 players -->
-  <div class="player-grid">
-    <div class="player-container" id="player1"></div>
-    <div class="player-container" id="player2"></div>
-    <div class="player-container" id="player3"></div>
-    <div class="player-container" id="player4"></div>
-    <div class="player-container" id="player5"></div>
-    <div class="player-container" id="player6"></div>
-    <div class="player-container" id="player7"></div>
-    <div class="player-container" id="player8"></div>
+  <div class="grid">
+    <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
+    <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
   </div>
 
-  <!-- Scripts -->
+  <div class="activity" id="activityPanel"></div>
+  <div class="stats" id="statsPanel">📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0</div>
+
+  <!-- YouTube API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="utils.js?v=1.1"></script>
-  <script src="controls.js?v=1.1"></script>
-  <script src="listLoader.js?v=1.1"></script>
-  <script src="playerHandlers.js?v=1.1"></script>
-  <script src="behaviors.js?v=1.1"></script>
-  <script src="HumanBehaviorPro.js?v=1.1"></script>
-  <script src="functions.js?v=1.1"></script>
-
+  <!-- Συνδέουμε το εξωτερικό αρχείο με τις συναρτήσεις -->
+  <script src="functions.js"></script>
 </body>
 </html>
