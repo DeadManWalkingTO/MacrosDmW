@@ -1,44 +1,65 @@
 // utils.js
-// Βοηθητικές συναρτήσεις για logging και stats
+// Βοηθητικές συναρτήσεις για logging και χρονισμό
 
-// --- Logging
-function log(msg) {
-  console.log(msg);
-
-  const pre = document.getElementById("log");
-  if (pre) {
-    // Προσθήκη νέας γραμμής
-    pre.textContent = `${pre.textContent}${pre.textContent ? "\n" : ""}${msg}`;
-
-    // Trim στις MAX_LOGS γραμμές
-    const lines = pre.textContent.split("\n");
-    if (lines.length > MAX_LOGS) {
-      pre.textContent = lines.slice(lines.length - MAX_LOGS).join("\n");
-    }
-  }
-
-  // Ενημέρωση stats μετά από κάθε log
-  updateStats();
+// --- Fallback όταν δεν υπάρχει MAX_LOGS από functions.js
+const MAX_LOGS_FALLBACK = 50;
+function getMaxLogs() {
+  return typeof MAX_LOGS === "number" ? MAX_LOGS : MAX_LOGS_FALLBACK;
 }
 
-// --- Timestamp helper
+// --- Timestamp helper (HH:MM:SS)
 function ts() {
   const now = new Date();
+  // Χωρίς 12ωρη μορφή, σταθερό locale για ευθυγράμμιση
   return now.toLocaleTimeString("el-GR", { hour12: false });
 }
 
-// --- Stats updater
-function updateStats() {
-  const list = document.getElementById("stats");
-  if (!list) return;
+// --- Logging στο <pre id="log">
+function log(msg) {
+  try {
+    console.log(msg);
+  } catch (_) {
+    // ignore console errors (π.χ. παλιά browsers)
+  }
 
-  list.innerHTML = `
-    <li>AutoNext: ${stats.autoNext}</li>
-    <li>ManualNext: ${stats.manualNext}</li>
-    <li>Shuffle: ${stats.shuffle}</li>
-    <li>Restart: ${stats.restart}</li>
-    <li>Pauses: ${stats.pauses}</li>
-    <li>VolumeChanges: ${stats.volumeChanges}</li>
-    <li>— HTML ${HTML_VERSION?.startsWith("v") ? HTML_VERSION : `v${HTML_VERSION}`} | JS ${JS_VERSION?.startsWith("v") ? JS_VERSION : `v${JS_VERSION}`}</li>
-  `;
+  const pre = document.getElementById("log");
+  if (pre) {
+    // Προσθήκη γραμμής με newline όταν χρειάζεται
+    pre.textContent = pre.textContent
+      ? `${pre.textContent}\n${msg}`
+      : `${msg}`;
+
+    // Trim στις τελευταίες MAX_LOGS γραμμές
+    const lines = pre.textContent.split("\n");
+    const max = getMaxLogs();
+    if (lines.length > max) {
+      pre.textContent = lines.slice(lines.length - max).join("\n");
+    }
+  }
+
+  // Προαιρετική ενημέρωση stats, αν υπάρχει
+  if (typeof updateStats === "function") {
+    try {
+      updateStats();
+    } catch (e) {
+      // Αν αποτύχει, μην μπλοκάρει το log
+      console.warn("updateStats failed:", e);
+    }
+  }
+}
+
+// --- Καθαρισμός Activity Log
+function clearLogs() {
+  const pre = document.getElementById("log");
+  if (pre) {
+    pre.textContent = "";
+  }
+  // Μετά τον καθαρισμό, ενημέρωσε τα stats (προαιρετικό)
+  if (typeof updateStats === "function") {
+    try {
+      updateStats();
+    } catch (e) {
+      console.warn("updateStats failed after clearLogs:", e);
+    }
+  }
 }
