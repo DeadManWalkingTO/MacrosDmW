@@ -42,10 +42,10 @@ body.light {
   background: #666;
 }
 
-/* Players σε grid */
+/* Players σε responsive grid */
 .player-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* desktop: 4 ανά σειρά */
   gap: 10px;
   padding: 10px;
   width: 100%;
@@ -53,17 +53,20 @@ body.light {
 }
 
 .player-container div {
+  position: relative;
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 9;   /* responsive χωρίς fixed height */
   background: #000;
 }
 
+/* Tablet: 2×2 */
 @media (max-width: 768px) {
   .player-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Mobile: 1×8 */
 @media (max-width: 480px) {
   .player-container {
     grid-template-columns: 1fr;
