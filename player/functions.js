@@ -1,4 +1,30 @@
 // ==========================
+// YouTube API Initialization
+// ==========================
+let players = [];
+
+function onYouTubeIframeAPIReady() {
+  // Δημιουργία player1
+  players.push(new YT.Player('player1', {
+    events: {
+      'onReady': onPlayerReady
+    }
+  }));
+
+  // Δημιουργία player2
+  players.push(new YT.Player('player2', {
+    events: {
+      'onReady': onPlayerReady
+    }
+  }));
+}
+
+function onPlayerReady(event) {
+  const id = event.target.getIframe().id;
+  logEvent(`Player ${id} → Ready`);
+}
+
+// ==========================
 // Utility Functions
 // ==========================
 function logEvent(msg) {
