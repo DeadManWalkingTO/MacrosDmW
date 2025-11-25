@@ -2,54 +2,41 @@
 <html lang="el">
 <head>
   <meta charset="UTF-8">
-  <meta name="html-version" content="v2.1.0">
-  <title>Active Desktop</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Multi Player Grid</title>
+  <link rel="stylesheet" href="style.css?v=1.1"> <!-- ενημερώνουμε έκδοση σε κάθε αλλαγή -->
 </head>
 <body>
 
-  <!-- Controls -->
+  <!-- Πάνελ ελέγχου -->
   <div class="controls">
-    <button onclick="playAll()">▶ Play All</button>
-    <button onclick="pauseAll()">⏸ Pause All</button>
-    <button onclick="restartAll()">🔄 Restart</button>
-    <button onclick="shuffleAll()">🔀 Shuffle</button>
-    <button onclick="toggleMuteAll()">🔇 Mute/Unmute</button>
-    <button onclick="reloadList()">📂 Reload List</button>
-    <button onclick="toggleTheme()">🌓 Theme</button>
-    <button onclick="clearLogs()">🧹 Clear Logs</button>
+    <button id="playAll">Play All</button>
+    <button id="pauseAll">Pause All</button>
+    <button id="restartAll">Restart</button>
+    <button id="shuffleAll">Shuffle</button>
+    <button id="muteAll">Mute</button>
   </div>
 
-  <!-- Players -->
-  <div class="player-container">
-    <div id="player1"></div>
-    <div id="player2"></div>
-    <div id="player3"></div>
-    <div id="player4"></div>
-    <div id="player5"></div>
-    <div id="player6"></div>
-    <div id="player7"></div>
-    <div id="player8"></div>
-  </div>
-
-  <!-- Activity Log -->
-  <div id="activityPanel">
-    <pre id="log"></pre>
-  </div>
-
-  <!-- Stats -->
-  <div id="statsPanel">
-    <div id="stats"></div>
+  <!-- Grid με 8 players -->
+  <div class="player-grid">
+    <div class="player-container" id="player1"></div>
+    <div class="player-container" id="player2"></div>
+    <div class="player-container" id="player3"></div>
+    <div class="player-container" id="player4"></div>
+    <div class="player-container" id="player5"></div>
+    <div class="player-container" id="player6"></div>
+    <div class="player-container" id="player7"></div>
+    <div class="player-container" id="player8"></div>
   </div>
 
   <!-- Scripts -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="utils.js"></script>
-  <script src="controls.js"></script>
-  <script src="listLoader.js"></script>
-  <script src="playerHandlers.js"></script>
-  <script src="behaviors.js"></script>
-  <script src="HumanBehaviorPro.js"></script>
-  <script src="functions.js"></script>
+  <script src="utils.js?v=1.1"></script>
+  <script src="controls.js?v=1.1"></script>
+  <script src="listLoader.js?v=1.1"></script>
+  <script src="playerHandlers.js?v=1.1"></script>
+  <script src="behaviors.js?v=1.1"></script>
+  <script src="HumanBehaviorPro.js?v=1.1"></script>
+  <script src="functions.js?v=1.1"></script>
+
 </body>
 </html>
