@@ -20,7 +20,7 @@ function log(msg) {
 
   const pre = document.getElementById("log");
   if (pre) {
-    // Προσθήκη γραμμής
+    // Προσθήκη γραμμής (χωρίς κενή γραμμή στην αρχή)
     pre.textContent = pre.textContent ? `${pre.textContent}\n${msg}` : `${msg}`;
 
     // Trim στις τελευταίες MAX_LOGS γραμμές
