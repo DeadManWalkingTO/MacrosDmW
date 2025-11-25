@@ -1,45 +1,44 @@
 // utils.js
-// Βασικές βοηθητικές συναρτήσεις για logging, randomization και στατιστικά
-
-// --- Timestamp
-const ts = () => new Date().toLocaleTimeString();
+// Βοηθητικές συναρτήσεις για logging και stats
 
 // --- Logging
 function log(msg) {
   console.log(msg);
-  const panel = document.getElementById("activityPanel");
-  if (panel) {
-    const div = document.createElement("div");
-    div.textContent = msg;
-    panel.appendChild(div);
-    // Κρατάμε μόνο τα τελευταία 50 logs
-    while (panel.children.length > MAX_LOGS) panel.removeChild(panel.firstChild);
-    panel.scrollTop = panel.scrollHeight;
+
+  const pre = document.getElementById("log");
+  if (pre) {
+    // Προσθήκη νέας γραμμής
+    pre.textContent = `${pre.textContent}${pre.textContent ? "\n" : ""}${msg}`;
+
+    // Trim στις MAX_LOGS γραμμές
+    const lines = pre.textContent.split("\n");
+    if (lines.length > MAX_LOGS) {
+      pre.textContent = lines.slice(lines.length - MAX_LOGS).join("\n");
+    }
   }
+
+  // Ενημέρωση stats μετά από κάθε log
   updateStats();
 }
 
-function logPlayer(pIndex, msg, id=null) {
-  const prefix = `Player ${pIndex+1}`;
-  const suffix = id ? `: id=${id}` : "";
-  log(`[${ts()}] ${prefix} — ${msg}${suffix}`);
+// --- Timestamp helper
+function ts() {
+  const now = new Date();
+  return now.toLocaleTimeString("el-GR", { hour12: false });
 }
 
-// --- Στατιστικά
+// --- Stats updater
 function updateStats() {
-  const el = document.getElementById("statsPanel");
-  if (el) {
-    el.textContent =
-      `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | ` +
-      `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
-  }
-}
+  const list = document.getElementById("stats");
+  if (!list) return;
 
-// --- Randomization helpers
-const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
-const rndDelayMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
-
-// --- Επιλογή τυχαίων videos
-function getRandomVideos(n) {
-  return [...videoList].sort(() => Math.random() - 0.5).slice(0, n);
+  list.innerHTML = `
+    <li>AutoNext: ${stats.autoNext}</li>
+    <li>ManualNext: ${stats.manualNext}</li>
+    <li>Shuffle: ${stats.shuffle}</li>
+    <li>Restart: ${stats.restart}</li>
+    <li>Pauses: ${stats.pauses}</li>
+    <li>VolumeChanges: ${stats.volumeChanges}</li>
+    <li>— HTML ${HTML_VERSION?.startsWith("v") ? HTML_VERSION : `v${HTML_VERSION}`} | JS ${JS_VERSION?.startsWith("v") ? JS_VERSION : `v${JS_VERSION}`}</li>
+  `;
 }
