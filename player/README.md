@@ -96,6 +96,8 @@ flowchart TD
     J --> K{YT API ready?}
     K -- Yes --> L[Init 8 Players with random subset]
     K -- No --> M[Wait until API ready, then Init]
+```
+
 📌 Σημείωση
 Αν υπάρχει list.txt στον φάκελο → χρησιμοποιείται αυτό.
 
