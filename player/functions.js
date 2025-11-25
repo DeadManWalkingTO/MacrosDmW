@@ -1,90 +1,54 @@
-// functions.js
+/* functions.js v1.1
+ * Κεντρικός orchestrator: state, config, kickoff
+ */
 
-const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
-const JS_VERSION = "v2.2.0";
-const MAX_LOGS = 50;
-
-function formatVersion(v) {
-  if (!v) return "vunknown";
-  return v.startsWith("v") ? v : `v${v}`;
-}
-
+// Global state
 let players = [];
-let videoList = [];
-let isMutedAll = true;
-let listSource = "Internal";
-
-const stats = {
-  autoNext: 0,
-  manualNext: 0,
-  shuffle: 0,
-  restart: 0,
-  pauses: 0,
-  volumeChanges: 0
+let playerConfig = {
+  count: 8,
+  ids: ["player1","player2","player3","player4","player5","player6","player7","player8"],
+  videoList: []
 };
 
-// --- Εκκίνηση project
-loadVideoList()
-  .then(list => {
-    videoList = list;
-    log(`[${ts()}] 🚀 Project start — HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`);
-    if (typeof YT !== "undefined" && YT.Player) {
-      initPlayers(getRandomVideos(8));
-    }
-    updateStats();
-  })
-  .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
-
-function getRandomVideos(count) {
-  const shuffled = [...videoList].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+// Kickoff: όταν φορτώσει το API
+function onYouTubeIframeAPIReady() {
+  logInfo("YouTube API Ready. Initializing players...");
+  initPlayers();
 }
 
-function initPlayers(videoIds) {
-  players = [];
-  videoIds.forEach((id, idx) => {
-    const player = new YT.Player(`player${idx + 1}`, {
-      videoId: id,
-      events: {
-        onReady: () => log(`[${ts()}] ✅ Player ${idx + 1} ready — id=${id}`),
-        onStateChange: e => handlePlayerStateChange(e, idx + 1, id)
+// Initialize all players
+function initPlayers() {
+  listLoader.loadVideoList()
+    .then(list => {
+      playerConfig.videoList = list;
+      logInfo("Video list loaded, initializing players...");
+
+      for (let i = 0; i < playerConfig.count; i++) {
+        let playerId = playerConfig.ids[i];
+        players[i] = new YT.Player(playerId, {
+          height: "100%",
+          width: "100%",
+          videoId: playerConfig.videoList[i % playerConfig.videoList.length],
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
       }
+    })
+    .catch(err => {
+      logError("Video list load failed: " + err);
     });
-    players.push(player);
-  });
-  log(`[${ts()}] ✅ Players initialized (${players.length}/${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
 }
 
-function handlePlayerStateChange(event, playerIndex, videoId) {
-  if (event.data === YT.PlayerState.PLAYING) {
-    log(`[${ts()}] ▶ Player ${playerIndex} started — id=${videoId}`);
-  } else if (event.data === YT.PlayerState.PAUSED) {
-    stats.pauses++;
-    updateStats();
-    log(`[${ts()}] ⏸ Player ${playerIndex} paused — id=${videoId}`);
-  } else if (event.data === YT.PlayerState.ENDED) {
-    stats.autoNext++;
-    updateStats();
-    log(`[${ts()}] ⏭ Player ${playerIndex} ended — id=${videoId}`);
-    const nextId = getRandomVideos(1)[0];
-    if (nextId) {
-      event.target.loadVideoById(nextId);
-      log(`[${ts()}] 🔀 Player ${playerIndex} next — id=${nextId}`);
-    }
-  }
-}
+// Controls binding
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("playAll").addEventListener("click", () => controls.playAll(players));
+  document.getElementById("pauseAll").addEventListener("click", () => controls.pauseAll(players));
+  document.getElementById("restartAll").addEventListener("click", () => controls.restartAll(players));
+  document.getElementById("shuffleAll").addEventListener("click", () => controls.shuffleAll(players, playerConfig.videoList));
+  document.getElementById("muteAll").addEventListener("click", () => controls.muteAll(players));
+});
 
-// --- Stats updater (μία γραμμή, χωρίς κενή γραμμή στην αρχή)
-function updateStats() {
-  const statsDiv = document.getElementById("stats");
-  if (!statsDiv) return;
-
-  statsDiv.textContent =
-    `Stats | AutoNext: ${stats.autoNext} | ` +
-    `ManualNext: ${stats.manualNext} | ` +
-    `Shuffle: ${stats.shuffle} | ` +
-    `Restart: ${stats.restart} | ` +
-    `Pauses: ${stats.pauses} | ` +
-    `VolumeChanges: ${stats.volumeChanges} | ` +
-    `HTML ${formatVersion(HTML_VERSION)} | JS ${formatVersion(JS_VERSION)}`;
-}
+// Export για άλλα modules
+export { players, playerConfig };
