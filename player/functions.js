@@ -1,57 +1,57 @@
-// functions.js
-// Κεντρικό orchestrator που συνδέει όλα τα modules
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="html-version" content="v2.0.0">
+  <title>Active Desktop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-// --- Versions
-const JS_VERSION = "v2.0.0";
-const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
+  <!-- Κουμπιά πρώτα (στη μορφή που είχαν) -->
+  <div id="controls">
+    <button onclick="playAll()">▶ Play All</button>
+    <button onclick="pauseAll()">⏸ Pause All</button>
+    <button onclick="restartAll()">🔄 Restart</button>
+    <button onclick="shuffleAll()">🔀 Shuffle</button>
+    <button onclick="muteAll()">🔇 Mute/Unmute</button>
+    <button onclick="reloadList()">📂 Reload List</button>
+    <button onclick="toggleTheme()">🌓 Theme</button>
+    <button onclick="clearLogs()">🧹 Clear Logs</button>
+  </div>
 
-// --- Behavior toggle
-const USE_HUMAN_BEHAVIOR_PRO = true; // true = HumanBehaviorPro.js, false = RandomBehavior
+  <!-- Players (2 γραμμές × 4, responsive 2×2/1×8 από CSS) -->
+  <div id="players">
+    <div id="player1"></div>
+    <div id="player2"></div>
+    <div id="player3"></div>
+    <div id="player4"></div>
+    <div id="player5"></div>
+    <div id="player6"></div>
+    <div id="player7"></div>
+    <div id="player8"></div>
+  </div>
 
-// --- State
-let players = [];
-let playerTimers = {}; // timers ανά player index
-let videoList = [];
-let isMutedAll = true;
-let listSource = "Internal"; // Local | Web | Internal
+  <!-- Log panel (στη μορφή που είχε) -->
+  <div id="activityPanel">
+    <h2>Activity Log</h2>
+    <pre id="log"></pre>
+  </div>
 
-const stats = {
-  autoNext: 0,
-  manualNext: 0,
-  shuffle: 0,
-  restart: 0,
-  pauses: 0,
-  volumeChanges: 0
-};
+  <!-- Stats panel (τελευταίο, στη μορφή που είχε) -->
+  <div id="statsPanel">
+    <h2>Stats</h2>
+    <ul id="stats"></ul>
+  </div>
 
-// --- Log settings
-const MAX_LOGS = 50;
-
-// --- Config
-const START_DELAY_MIN_S = 5, START_DELAY_MAX_S = 180;
-const INIT_SEEK_MAX_S = 60;
-const UNMUTE_VOL_MIN = 10, UNMUTE_VOL_MAX = 30;
-const NORMALIZE_VOLUME_TARGET = 20;
-const PAUSE_SMALL_MS = [2000, 5000];
-const PAUSE_LARGE_MS = [15000, 30000];
-const MID_SEEK_INTERVAL_MIN = [5, 9]; // minutes
-const MID_SEEK_WINDOW_S = [30, 120]; // seconds
-
-// --- Kick off project
-loadVideoList()
-  .then(list => {
-    videoList = list;
-    log(`[${ts()}] 🚀 Project start — HTML ${HTML_VERSION} | JS ${JS_VERSION}`);
-    if (typeof YT !== "undefined" && YT.Player) {
-      initPlayers(getRandomVideos(8));
-    }
-
-    // Μετά το initialization, πρόσθεσε την έκδοση στο Stats panel
-    const statsPanel = document.getElementById("statsPanel");
-    if (statsPanel) {
-      const versionInfo = document.createElement("div");
-      versionInfo.textContent = `— HTML ${HTML_VERSION} | JS ${JS_VERSION}`;
-      statsPanel.appendChild(versionInfo);
-    }
-  })
-  .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
+  <!-- Scripts -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="utils.js"></script>
+  <script src="controls.js"></script>
+  <script src="listLoader.js"></script>
+  <script src="playerHandlers.js"></script>
+  <script src="behaviors.js"></script>
+  <script src="HumanBehaviorPro.js"></script>
+  <script src="functions.js"></script>
+</body>
+</html>
