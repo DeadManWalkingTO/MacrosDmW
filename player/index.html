@@ -41,6 +41,11 @@
       overflow-y: scroll;
       font-size: 12px;
     }
+    #players {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
     iframe {
       margin: 10px;
     }
@@ -90,12 +95,8 @@
     </div>
   </div>
 
-  <!-- Players -->
-  <div id="players">
-    <!-- Παράδειγμα με 2 players -->
-    <iframe id="player1" src="https://www.youtube.com/embed/VIDEO_ID1?enablejsapi=1" width="400" height="250"></iframe>
-    <iframe id="player2" src="https://www.youtube.com/embed/VIDEO_ID2?enablejsapi=1" width="400" height="250"></iframe>
-  </div>
+  <!-- Players (θα δημιουργηθούν δυναμικά από το JS) -->
+  <div id="players"></div>
 
   <!-- Activity Log -->
   <h3>📜 Activity Log</h3>
