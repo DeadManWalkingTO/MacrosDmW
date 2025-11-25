@@ -1,51 +1,51 @@
-// utils.js
-// Βοηθητικές συναρτήσεις για logging, χρονισμό και καθαρισμό log
+/* utils.js v1.1
+ * Βοηθητικές συναρτήσεις: logging, randomization, στατιστικά
+ */
 
-// Ρύθμιση ορίου γραμμών (fallback αν δεν υπάρχει MAX_LOGS από functions.js)
-const MAX_LOGS_FALLBACK = 50;
-function getMaxLogs() {
-  return (typeof MAX_LOGS === "number" && MAX_LOGS > 0) ? MAX_LOGS : MAX_LOGS_FALLBACK;
+// Logging helpers
+function logInfo(msg) {
+  console.log("[INFO] " + msg);
 }
 
-// Timestamp helper (HH:MM:SS)
-function ts() {
-  const now = new Date();
-  return now.toLocaleTimeString("el-GR", { hour12: false });
+function logError(msg) {
+  console.error("[ERROR] " + msg);
 }
 
-// Logging στο <pre id="log"> με trimming, χωρίς κενή γραμμή στην αρχή
-function log(msg) {
-  // Echo στην κονσόλα
-  try { console.log(msg); } catch (_) {}
-
-  const pre = document.getElementById("log");
-  if (pre) {
-    // Προσθήκη γραμμής
-    pre.textContent = pre.textContent
-      ? pre.textContent + "\n" + msg
-      : msg;
-
-    // Trim στις τελευταίες MAX_LOGS γραμμές
-    const lines = pre.textContent.split("\n");
-    const max = getMaxLogs();
-    if (lines.length > max) {
-      pre.textContent = lines.slice(lines.length - max).join("\n");
-    }
-  }
-
-  // Ενημέρωση stats (αν υπάρχει)
-  if (typeof updateStats === "function") {
-    try { updateStats(); } catch (e) { try { console.warn("updateStats failed:", e); } catch (_) {} }
-  }
+function logDebug(msg) {
+  console.debug("[DEBUG] " + msg);
 }
 
-// Καθαρισμός Activity Log
-function clearLogs() {
-  const pre = document.getElementById("log");
-  if (pre) pre.textContent = "";
+// Randomization helpers
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-  // Μετά τον καθαρισμό, ενημέρωσε τα stats (αν υπάρχει)
-  if (typeof updateStats === "function") {
-    try { updateStats(); } catch (e) { try { console.warn("updateStats failed after clearLogs:", e); } catch (_) {} }
+function getRandomElement(arr) {
+  if (!arr || arr.length === 0) return null;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Stats tracking
+let stats = {
+  plays: 0,
+  pauses: 0,
+  restarts: 0,
+  shuffles: 0,
+  mutes: 0
+};
+
+function updateStats(action) {
+  if (stats.hasOwnProperty(action)) {
+    stats[action]++;
+    logInfo("Stats updated: " + action + " = " + stats[action]);
+  } else {
+    logError("Unknown stats action: " + action);
   }
 }
+
+function getStats() {
+  return { ...stats };
+}
+
+// Export για χρήση από άλλα modules
+export { logInfo, logError, logDebug, getRandomInt, getRandomElement, updateStats, getStats };
