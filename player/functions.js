@@ -1,9 +1,9 @@
 // --- Versions
-const JS_VERSION = "v1.3.5";
+const JS_VERSION = "v1.3.6";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- Behavior toggle
-const USE_HUMAN_BEHAVIOR = true; // true = HumanBehavior.js, false = RandomBehavior
+const USE_HUMAN_BEHAVIOR_EXTENDED = true; // true = HumanBehaviorExtended.js, false = RandomBehavior
 
 // --- State
 let players = [];
@@ -154,8 +154,8 @@ function onPlayerReady(e, i) {
     p.setPlaybackQuality('small');
     logPlayer(i, `▶ Start after ${Math.round(startDelay/1000)}s, seek=${seek}s`, p.getVideoData().video_id);
 
-    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
-      scheduleHumanBehavior(p, i);
+    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
+      scheduleHumanBehaviorExtended(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -172,8 +172,8 @@ function onPlayerStateChange(e, i) {
     stats.autoNext++;
     logPlayer(i, "⏭ AutoNext", newId);
 
-    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
-      scheduleHumanBehavior(p, i);
+    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
+      scheduleHumanBehaviorExtended(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -249,8 +249,8 @@ function nextAll() {
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
 
-    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
-      scheduleHumanBehavior(p, i);
+    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
+      scheduleHumanBehaviorExtended(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -268,8 +268,8 @@ function shuffleAll() {
     p.playVideo();
     logPlayer(i, "🎲 Shuffle", id);
 
-    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
-      scheduleHumanBehavior(p, i);
+    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
+      scheduleHumanBehaviorExtended(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
@@ -288,8 +288,8 @@ function restartAll() {
     p.playVideo();
     logPlayer(i, "🔁 Restart", id);
 
-    if (USE_HUMAN_BEHAVIOR && typeof scheduleHumanBehavior === "function") {
-      scheduleHumanBehavior(p, i);
+    if (USE_HUMAN_BEHAVIOR_EXTENDED && typeof scheduleHumanBehaviorExtended === "function") {
+      scheduleHumanBehaviorExtended(p, i);
     } else {
       scheduleRandomPauses(p, i);
       scheduleMidSeek(p, i);
